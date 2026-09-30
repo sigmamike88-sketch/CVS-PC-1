@@ -1,200 +1,5248 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CVS Flashcards</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>❤️</text></svg>"
+    />
     <style>
-        /* Basic styling to match your existing dark theme */
-        body {
-            background-color: #0d1117;
-            color: #c9d1d9;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-        }
+      :root {
+        --bg: #0a0e14;
+        --card: #121821;
+        --border: #1f2836;
+        --border-2: #2b3648;
+        --text: #e6edf3;
+        --text-dim: #8b949e;
+        --text-faint: #5a6472;
+        --accent: #e91e63;
+        --accent-2: #7c4dff;
+        --blue: #4d9fff;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        -webkit-tap-highlight-color: transparent;
+      }
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+      }
+      .header {
+        width: 100%;
+        max-width: 600px;
+        margin-bottom: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 18px;
+        background: rgba(233, 30, 99, 0.08);
+        border: 1px solid rgba(233, 30, 99, 0.25);
+        border-radius: 999px;
+        color: #e6edf3;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 600;
+        transition: all 0.25s ease;
+        width: fit-content;
+      }
+      .back-btn:hover {
+        background: rgba(233, 30, 99, 0.18);
+        border-color: var(--accent);
+        color: #fff;
+        transform: translateX(-3px);
+        box-shadow: 0 4px 14px rgba(233, 30, 99, 0.25);
+      }
+      .back-btn svg {
+        transition: transform 0.25s ease;
+      }
+      .back-btn:hover svg {
+        transform: translateX(-3px);
+      }
+      h1 {
+        font-size: 24px;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+      }
 
-        .header {
-            margin-bottom: 20px;
-        }
+      /* Flashcard */
+      .flashcard-container {
+        width: 100%;
+        max-width: 600px;
+        height: 420px;
+        perspective: 1000px;
+        margin-bottom: 20px;
+      }
+      .flashcard {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        transform-style: preserve-3d;
+        transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+        cursor: pointer;
+      }
+      .flashcard.is-flipped {
+        transform: rotateY(180deg);
+      }
+      .flashcard-face {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 50px 40px 40px;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      }
+      .flashcard-face::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--accent), var(--accent-2));
+        border-radius: 16px 16px 0 0;
+      }
+      .flashcard-face.back {
+        transform: rotateY(180deg);
+        background: linear-gradient(
+          135deg,
+          rgba(233, 30, 99, 0.05),
+          rgba(124, 77, 255, 0.05)
+        );
+      }
+      .subject-badge {
+        position: absolute;
+        top: 16px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 6px 14px;
+        border-radius: 999px;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        white-space: nowrap;
+        border: 1px solid;
+      }
+      .subject-anatomy {
+        color: #e91e63;
+        background: rgba(233, 30, 99, 0.12);
+        border-color: rgba(233, 30, 99, 0.4);
+      }
+      .subject-physiology {
+        color: #ff5252;
+        background: rgba(255, 82, 82, 0.12);
+        border-color: rgba(255, 82, 82, 0.4);
+      }
+      .subject-pathology {
+        color: #4d9fff;
+        background: rgba(77, 159, 255, 0.12);
+        border-color: rgba(77, 159, 255, 0.4);
+      }
+      .subject-pharmacology {
+        color: #9c27b0;
+        background: rgba(156, 39, 176, 0.12);
+        border-color: rgba(156, 39, 176, 0.4);
+      }
+      .subject-microbiology {
+        color: #f5b800;
+        background: rgba(245, 184, 0, 0.12);
+        border-color: rgba(245, 184, 0, 0.4);
+      }
+      .subject-biochemistry {
+        color: #00c853;
+        background: rgba(0, 200, 83, 0.12);
+        border-color: rgba(0, 200, 83, 0.4);
+      }
 
-        .back-btn {
-            color: #58a6ff;
-            text-decoration: none;
-            font-size: 14px;
-            display: inline-flex;
-            align-items: center;
-            margin-bottom: 20px;
-        }
+      .card-label {
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: var(--text-dim);
+        margin-bottom: 20px;
+      }
+      .front .card-label {
+        color: var(--accent);
+      }
+      .back .card-label {
+        color: var(--accent-2);
+      }
+      .card-content {
+        font-size: 19px;
+        line-height: 1.6;
+        font-weight: 600;
+        overflow-y: auto;
+        max-height: 100%;
+      }
+      .back .card-content {
+        font-size: 17px;
+        font-weight: 500;
+        color: #c9d1d9;
+      }
 
-        .back-btn:hover {
-            text-decoration: underline;
-        }
+      /* Controls */
+      .controls {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-top: 10px;
+      }
+      button {
+        font-family: inherit;
+        cursor: pointer;
+        border: 1px solid var(--border);
+        background: var(--card);
+        color: var(--text);
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 700;
+        transition: all 0.2s;
+      }
+      button:hover:not(:disabled) {
+        border-color: var(--accent);
+        background: #1a2130;
+      }
+      button:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+      }
+      button.primary {
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        border-color: transparent;
+        color: #fff;
+        box-shadow: 0 4px 14px rgba(233, 30, 99, 0.3);
+      }
+      button.primary:hover:not(:disabled) {
+        box-shadow: 0 6px 20px rgba(233, 30, 99, 0.4);
+        transform: translateY(-1px);
+      }
+      .counter {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text-dim);
+        min-width: 60px;
+        text-align: center;
+      }
+      .hint {
+        margin-top: 20px;
+        font-size: 12px;
+        color: var(--text-dim);
+        text-align: center;
+      }
 
-        h1 {
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-
-        /* Flashcard Container */
-        .flashcard-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            height: 60vh;
-            perspective: 1000px;
-        }
-
-        .flashcard {
-            width: 100%;
-            max-width: 600px;
-            height: 300px;
-            background-color: #161b22;
-            border: 1px solid #30363d;
-            border-radius: 12px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 40px;
-            box-sizing: border-box;
-            cursor: pointer;
-            position: relative;
-            transform-style: preserve-3d;
-            transition: transform 0.6s;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-        }
-
-        .flashcard.is-flipped {
-            transform: rotateY(180deg);
-        }
-
-        .flashcard-face {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        .flashcard-face.front {
-            font-size: 20px;
-            font-weight: 500;
-        }
-
-        .flashcard-face.back {
-            transform: rotateY(180deg);
-            font-size: 18px;
-            color: #8b949e;
-        }
-
-        /* Controls */
-        .controls {
-            margin-top: 30px;
-            display: flex;
-            gap: 15px;
-        }
-
-        button {
-            background-color: #21262d;
-            color: #c9d1d9;
-            border: 1px solid #30363d;
-            padding: 10px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: 0.2s;
-        }
-
-        button:hover {
-            background-color: #30363d;
-            border-color: #8b949e;
-        }
-
-        .counter {
-            margin-top: 15px;
-            color: #8b949e;
-            font-size: 14px;
-        }
+      /* ===== QUESTION NAVIGATOR GRID ===== */
+      .q-nav-section {
+        width: 100%;
+        max-width: 600px;
+        margin-top: 24px;
+      }
+      .q-nav-title {
+        font-size: 11px;
+        font-weight: 800;
+        color: var(--text-faint);
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .q-nav-title .count {
+        background: #171d28;
+        color: var(--text-dim);
+        padding: 3px 9px;
+        border-radius: 999px;
+        font-size: 10px;
+        font-weight: 700;
+      }
+      .q-nav-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+        padding: 16px;
+        background: #10151d;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        max-height: 400px;
+        overflow-y: auto;
+      }
+      .q-nav-btn {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        background: #171d28;
+        border: 1px solid var(--border);
+        font-size: 12px;
+        font-weight: 800;
+        color: var(--text-dim);
+        transition: all 0.15s;
+        padding: 0;
+        cursor: pointer;
+      }
+      .q-nav-btn:hover {
+        border-color: var(--accent-2);
+        color: var(--text);
+      }
+      .q-nav-btn.current {
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        color: #fff;
+        border-color: transparent;
+        box-shadow: 0 4px 14px rgba(233, 30, 99, 0.4);
+      }
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 14px;
+        padding: 12px 16px;
+        background: #10151d;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+      }
+      .legend-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--text-dim);
+      }
+      .legend-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+      }
     </style>
-</head>
-<body>
-
+  </head>
+  <body>
     <div class="header">
-        <a href="index.html" class="back-btn">← Back to Main Page</a>
-        <h1>CVS Flashcards</h1>
+      <a href="index.html" class="back-btn">
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M19 12H5M12 19l-7-7 7-7" />
+        </svg>
+        Back to Main Page
+      </a>
+      <h1>CVS Flashcards</h1>
     </div>
 
     <div class="flashcard-container">
-        <div class="flashcard" id="flashcard" onclick="flipCard()">
-            <div class="flashcard-face front" id="question">Loading question...</div>
-            <div class="flashcard-face back" id="answer">Loading answer...</div>
+      <div class="flashcard" id="flashcard" onclick="flipCard()">
+        <div class="flashcard-face front">
+          <span class="subject-badge" id="subjectFront">Subject</span>
+          <span class="card-label">Question</span>
+          <div class="card-content" id="questionText">Loading...</div>
         </div>
-        
-        <div class="counter" id="counter">1 / 1</div>
+        <div class="flashcard-face back">
+          <span class="subject-badge" id="subjectBack">Subject</span>
+          <span class="card-label">Answer</span>
+          <div class="card-content" id="answerText">Loading...</div>
+        </div>
+      </div>
+    </div>
 
-        <div class="controls">
-            <button onclick="prevCard()">Previous</button>
-            <button onclick="nextCard()">Next</button>
-        </div>
+    <div class="controls">
+      <button id="prevBtn" onclick="prevCard()">← Prev</button>
+      <div class="counter" id="counter">1 / 1</div>
+      <button id="nextBtn" class="primary" onclick="nextCard()">Next →</button>
+    </div>
+
+    <div class="hint">Click the card to flip it · Use ← → keys to navigate</div>
+
+    <div class="q-nav-section">
+      <div class="q-nav-title">
+        Jump to Question
+        <span class="count" id="navCount">0</span>
+      </div>
+      <div class="q-nav-grid" id="qNavGrid"></div>
+      <div class="legend">
+        <span class="legend-item"
+          ><span class="legend-dot" style="background: #e91e63"></span
+          >Anatomy</span
+        >
+        <span class="legend-item"
+          ><span class="legend-dot" style="background: #ff5252"></span
+          >Physiology</span
+        >
+        <span class="legend-item"
+          ><span class="legend-dot" style="background: #4d9fff"></span
+          >Pathology</span
+        >
+        <span class="legend-item"
+          ><span class="legend-dot" style="background: #9c27b0"></span
+          >Pharmacology</span
+        >
+        <span class="legend-item"
+          ><span class="legend-dot" style="background: #f5b800"></span
+          >Microbiology</span
+        >
+        <span class="legend-item"
+          ><span class="legend-dot" style="background: #00c853"></span
+          >Biochemistry</span
+        >
+      </div>
     </div>
 
     <script>
-        // 1. ADD YOUR FLASHCARD DATA HERE
-        const flashcards = [
-            {
-                question: "What is the primary function of the cardiovascular system?",
-                answer: "To deliver oxygen and nutrients to tissues and remove carbon dioxide and waste products."
-            },
-            {
-                question: "What is the pacemaker of the heart?",
-                answer: "The Sinoatrial (SA) node."
-            },
-            {
-                question: "Define Systole.",
-                answer: "The phase of the heartbeat when the heart muscle contracts and pumps blood from the chambers into the arteries."
-            }
-        ];
+      // ============================================================
+      // PASTE YOUR FLASHCARDS HERE
+      // Format: { s: "Subject", q: "Question", a: "Answer" },
+      // Subjects: Anatomy | Physiology | Pathology | Pharmacology | Microbiology | Biochemistry
+      // ============================================================
 
-        let currentIndex = 0;
+      // PASTE YOUR FLASHCARDS HERE
+      // ============================================================
+      // FLASHCARD DATA
+      // Format: { s: "Subject", q: "Question", a: "Answer" }
+      // s = Anatomy | Physiology | Pathology | Pharmacology | Microbiology | Biochemistry
+      // ============================================================
+      const flashcards = [
+        // ==================== ANATOMY: GROSS ====================
+        {
+          s: "Anatomy",
+          q: "At what vertebral level is the sternal angle (angle of Louis) located?",
+          a: "Lower border of the T4 vertebra (intervertebral disc between T4 and T5).",
+        },
+        {
+          s: "Anatomy",
+          q: "Which structure prevents the regurgitation of mitral valve cusps into the left atrium during systole?",
+          a: "Chordae tendineae.",
+        },
+        {
+          s: "Anatomy",
+          q: "Which artery supplies the anterior two-thirds of the interventricular septum and the right and left bundle branches?",
+          a: "The anterior interventricular artery (LAD).",
+        },
+        {
+          s: "Anatomy",
+          q: "Where is the apex of the heart located on the surface of the chest?",
+          a: "Left 5th intercostal space, midclavicular line.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the most anterior structure in the superior mediastinum?",
+          a: "The thymus gland.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the correct path of blood from the leg to the aorta?",
+          a: "Vena cava → right atrium → right ventricle → lungs → left atrium → left ventricle → aorta.",
+        },
+        {
+          s: "Anatomy",
+          q: "Which artery supplies the lateral wall (obtuse margin) of the left ventricle?",
+          a: "The left marginal branch of the circumflex artery.",
+        },
+        {
+          s: "Anatomy",
+          q: "Which layer of the pericardium must be anesthetized to reduce pain during pericardiocentesis?",
+          a: "The fibrous pericardium (and parietal layer of serous pericardium).",
+        },
+        {
+          s: "Anatomy",
+          q: "Which chamber forms the majority of the anterior (sternocostal) surface of the heart?",
+          a: "The right ventricle.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the smooth outflow tract of the left ventricle?",
+          a: "The aortic vestibule.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the smooth, muscular ridge that separates the rough anterior part from the smooth posterior part of the right atrium?",
+          a: "The crista terminalis.",
+        },
+        {
+          s: "Anatomy",
+          q: "Which structure separates the rough inflow part from the smooth outflow part of the right ventricle?",
+          a: "The supraventricular crest.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the blind cul-de-sac behind the left atrium, bounded by reflections around the pulmonary veins?",
+          a: "The oblique pericardial sinus.",
+        },
+        {
+          s: "Anatomy",
+          q: "Which vein is at high risk of injury during an emergency tracheostomy, especially in infants?",
+          a: "The left brachiocephalic vein.",
+        },
+        {
+          s: "Anatomy",
+          q: "Which artery is the first branch of the ascending aorta?",
+          a: "The coronary arteries.",
+        },
+        {
+          s: "Anatomy",
+          q: "Which coronary artery supplies the right atrium, most of the right ventricle, and the posterior third of the interventricular septum?",
+          a: "The right coronary artery (RCA).",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the vein that runs alongside the anterior interventricular artery (LAD)?",
+          a: "The great cardiac vein.",
+        },
+        {
+          s: "Anatomy",
+          q: "Where is the sinoatrial (SA) node located?",
+          a: "In the right atrial wall, near the opening of the superior vena cava.",
+        },
+        {
+          s: "Anatomy",
+          q: "What are the three layers of the heart wall from innermost to outermost?",
+          a: "Endocardium → Myocardium → Epicardium.",
+        },
+        {
+          s: "Anatomy",
+          q: "Which structure is a thick muscular ridge in the right ventricle that separates the inflow and outflow tracts?",
+          a: "The supraventricular crest (crista supraventricularis).",
+        },
 
-        // 2. LOGIC TO HANDLE THE CARDS
-        function updateCard() {
-            // Reset flip state when moving to a new card
-            document.getElementById('flashcard').classList.remove('is-flipped');
-            
-            const card = flashcards[currentIndex];
-            document.getElementById('question').innerText = card.question;
-            document.getElementById('answer').innerText = card.answer;
-            document.getElementById('counter').innerText = `${currentIndex + 1} / ${flashcards.length}`;
-        }
+        // ==================== ANATOMY: HISTOLOGY ====================
+        {
+          s: "Anatomy",
+          q: "Which layer of the heart wall contains Purkinje fibers?",
+          a: "The subendocardial layer of the endocardium.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the core of each cardiac valve leaflet made of?",
+          a: "Dense fibrous connective tissue, known as the lamina fibrosa.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the function of vasa vasorum?",
+          a: "To supply blood to the walls of large arteries and veins (vessels of the vessels).",
+        },
+        {
+          s: "Anatomy",
+          q: "Which type of capillary is characterized by the presence of fenestrae without diaphragms?",
+          a: "Fenestrated capillaries of the renal glomeruli.",
+        },
+        {
+          s: "Anatomy",
+          q: "Which type of capillary is found in the CNS and forms the blood-brain barrier?",
+          a: "Continuous capillaries (with tight junctions and few pinocytic vesicles).",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the primary tissue type found in the tunica media of muscular arteries?",
+          a: "Smooth muscle tissue.",
+        },
+        {
+          s: "Anatomy",
+          q: "Which layer of a blood vessel is composed of endothelium and subendothelial connective tissue?",
+          a: "The tunica intima.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the specialized cell-cell junction that allows cardiac muscle cells to contract as a syncytium?",
+          a: "Gap junctions (found within intercalated discs).",
+        },
+        {
+          s: "Anatomy",
+          q: "Which layer of the heart is also known as the visceral pericardium?",
+          a: "The epicardium.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the connective tissue layer that separates the endocardium from the myocardium?",
+          a: "The subendocardial layer.",
+        },
+        {
+          s: "Anatomy",
+          q: "Which type of blood vessel has the thickest tunica media?",
+          a: "Arteries (specifically muscular arteries).",
+        },
+        {
+          s: "Anatomy",
+          q: "Which type of blood vessel has valves to prevent backflow of blood?",
+          a: "Veins.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the specialized cardiac muscle cells that are responsible for generating the heartbeat?",
+          a: "Pacemaker cells (SA node cells).",
+        },
+        {
+          s: "Anatomy",
+          q: "Which type of capillary is found in the liver, spleen, and bone marrow?",
+          a: "Sinusoidal capillaries.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the layer of the heart that is composed of simple squamous epithelium (mesothelium)?",
+          a: "The epicardium (visceral pericardium).",
+        },
+        {
+          s: "Anatomy",
+          q: "Which structure in the heart is responsible for the delay of electrical impulses between the atria and ventricles?",
+          a: "The AV node.",
+        },
+        {
+          s: "Anatomy",
+          q: "What type of epithelium lines the inside of the heart chambers?",
+          a: "Simple squamous epithelium (endothelium).",
+        },
+        {
+          s: "Anatomy",
+          q: "Which vessel has a more prominent internal elastic lamina: a muscular artery or a vein?",
+          a: "A muscular artery.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the connective tissue that forms the fibrous skeleton of the heart?",
+          a: "Dense irregular connective tissue.",
+        },
+        {
+          s: "Anatomy",
+          q: "Which cells are responsible for the production of collagen and elastin in the heart valves?",
+          a: "Fibroblasts.",
+        },
 
-        function flipCard() {
-            document.getElementById('flashcard').classList.toggle('is-flipped');
-        }
+        // ==================== PHYSIOLOGY ====================
+        {
+          s: "Physiology",
+          q: "What is the Frank-Starling mechanism?",
+          a: "The heart's intrinsic ability to adapt to increasing volumes of inflowing blood by contracting with greater force.",
+        },
+        {
+          s: "Physiology",
+          q: "When do the semilunar valves open during the cardiac cycle?",
+          a: "When ventricular pressure exceeds the pressure in the aorta and pulmonary trunk.",
+        },
+        {
+          s: "Physiology",
+          q: "When do the semilunar valves close?",
+          a: "When the pressure in the aorta and pulmonary trunk becomes greater than the pressure in the ventricles.",
+        },
+        {
+          s: "Physiology",
+          q: "During which phase of the cardiac cycle is the T-wave recorded on an ECG?",
+          a: "Isovolumetric ventricular relaxation phase (ventricular repolarization).",
+        },
+        {
+          s: "Physiology",
+          q: "What percentage of ventricular filling is due to atrial contraction?",
+          a: "About 20% (the remaining 80% is passive flow).",
+        },
+        {
+          s: "Physiology",
+          q: "What is the immediate phase that follows the beginning of the QRS wave?",
+          a: "Isovolumetric contraction phase.",
+        },
+        {
+          s: "Physiology",
+          q: "What causes the opening of the atrioventricular (AV) valves?",
+          a: "When atrial pressure becomes greater than ventricular pressure.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the primary mechanism of action of nitric oxide (NO) in vasodilation?",
+          a: "It activates guanylyl cyclase to increase cGMP, leading to smooth muscle relaxation.",
+        },
+        {
+          s: "Physiology",
+          q: "Which hormone is primarily responsible for the long-term regulation of blood pressure?",
+          a: "Aldosterone (via the renal-body fluid system).",
+        },
+        {
+          s: "Physiology",
+          q: "What is the primary site of resistance to blood flow in the systemic circulation?",
+          a: "Arterioles.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the final destination of lymph in the circulatory system?",
+          a: "Venous blood (at the junction of the subclavian and internal jugular veins).",
+        },
+        {
+          s: "Physiology",
+          q: "What causes the isoelectric line on an ECG?",
+          a: "When the cardiac cells are completely depolarized or completely repolarized (no potential difference).",
+        },
+        {
+          s: "Physiology",
+          q: "Which ECG component is always missed on the ECG paper in a normal ECG?",
+          a: "The atrial T wave (it is obscured by the QRS complex).",
+        },
+        {
+          s: "Physiology",
+          q: "What are the classic ECG findings of atrial fibrillation?",
+          a: "Absent P waves and irregularly irregular R-R intervals.",
+        },
+        {
+          s: "Physiology",
+          q: "What are the classic ECG findings of ventricular tachycardia?",
+          a: "Wide QRS complexes and prolonged PR intervals (or dissociated P waves).",
+        },
+        {
+          s: "Physiology",
+          q: "What are the classic ECG findings of third-degree AV block?",
+          a: "Wide QRS complexes and prolonged PR intervals (with no relationship between P and QRS).",
+        },
+        {
+          s: "Physiology",
+          q: "What are the classic ECG findings of atrial flutter?",
+          a: "Saw-tooth shaped P waves (F waves) and regular R-R intervals.",
+        },
+        {
+          s: "Physiology",
+          q: "What are the classic ECG findings of hyperkalemia?",
+          a: "Tall, peaked T waves and prolonged QT intervals.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common method to measure arterial blood pressure?",
+          a: "Sphygmomanometry.",
+        },
+        {
+          s: "Physiology",
+          q: "Where are the peripheral chemoreceptors located?",
+          a: "Carotid bodies and aortic bodies.",
+        },
+        {
+          s: "Physiology",
+          q: "What ECG change is indicative of myocardial injury?",
+          a: "ST-segment elevation.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the primary cause of T-wave inversion in acute myocardial infarction?",
+          a: "Ischemia.",
+        },
+        {
+          s: "Physiology",
+          q: "During atrial systole, what is the state of the AV and semilunar valves?",
+          a: "AV valves are open, and semilunar valves are closed.",
+        },
+        {
+          s: "Physiology",
+          q: "Which phase of the cardiac cycle is a transitional phase where ventricular pressure drops rapidly?",
+          a: "Protodiastolic phase.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the primary role of the AV node in the heart?",
+          a: "To delay the transmission of electrical impulses to the ventricles, allowing the atria to finish contracting.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the effect of sympathetic stimulation on the heart's refractory period?",
+          a: "It decreases the refractory period.",
+        },
+        {
+          s: "Physiology",
+          q: "Which ion is primarily responsible for the depolarization phase in pacemaker cells?",
+          a: "Calcium (Ca²⁺).",
+        },
+        {
+          s: "Physiology",
+          q: "How long does the AV node delay the transmission of action potentials to the ventricles?",
+          a: "Approximately 0.09 seconds.",
+        },
+        {
+          s: "Physiology",
+          q: "Which auto-rhythmic cells have the highest velocity of action potential conduction?",
+          a: "Purkinje fibers.",
+        },
+        {
+          s: "Physiology",
+          q: "In which phase of the ventricular muscle action potential is potassium permeability the highest?",
+          a: "Phase 3 (rapid repolarization).",
+        },
+        {
+          s: "Physiology",
+          q: "What is the threshold level at which the S-A node discharges?",
+          a: "-40 mV.",
+        },
+        {
+          s: "Physiology",
+          q: "If the ventricular Purkinje fibers become the pacemaker of the heart, what is the expected heart rate?",
+          a: "30/min (15-40 bpm).",
+        },
+        {
+          s: "Physiology",
+          q: "What prevents cardiac muscle from undergoing a tetanic contraction?",
+          a: "The long refractory period of the action potential (plateau phase).",
+        },
+        {
+          s: "Physiology",
+          q: "What is the effect of parasympathetic stimulation on the SA node?",
+          a: "It inhibits the SA node, which can lead to a complete stop for several seconds.",
+        },
+        {
+          s: "Physiology",
+          q: "Which factor is directly proportional to myocardial oxygen demand?",
+          a: "Wall stress.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of diastolic dysfunction?",
+          a: "Hypertrophic cardiomyopathy.",
+        },
 
-        function nextCard() {
-            if (currentIndex < flashcards.length - 1) {
-                currentIndex++;
-                updateCard();
-            }
-        }
+        // ==================== PATHOLOGY ====================
+        {
+          s: "Pathology",
+          q: "Which valvular lesion is most commonly caused by rheumatic fever?",
+          a: "Mitral stenosis.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the characteristic histological change within 24 hours of a myocardial infarction?",
+          a: "Coagulative necrosis (with loss of nuclei and striations).",
+        },
+        {
+          s: "Pathology",
+          q: "What type of inflammation occurs in rheumatic fever-caused pericarditis?",
+          a: "Fibrinous pericarditis (bread-and-butter appearance).",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common primary tumor of the heart in adults?",
+          a: "Myxoma.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of mitral stenosis?",
+          a: "Chronic rheumatic valve disease.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common site of myocardial infarction?",
+          a: "Anterolateral wall (due to LAD occlusion).",
+        },
+        {
+          s: "Pathology",
+          q: "Which type of cardiomyopathy is characterized by a thinned and enlarged heart muscle?",
+          a: "Dilated cardiomyopathy.",
+        },
+        {
+          s: "Pathology",
+          q: "What are the classic signs of cardiac tamponade?",
+          a: "Hypotension, muffled heart sounds, and increased jugular venous pressure (Beck's Triad).",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most frequent preexisting histology in aortic dissection?",
+          a: "Cystic medial degeneration.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common site of formation of venous thrombi?",
+          a: "The legs (deep veins).",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of superior vena caval syndrome?",
+          a: "Bronchogenic carcinoma (lung cancer).",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of constrictive pericarditis?",
+          a: "Tuberculosis.",
+        },
+        {
+          s: "Pathology",
+          q: "Which congenital heart disease is the most common cause of cyanotic heart disease?",
+          a: "Tetralogy of Fallot (ToF).",
+        },
+        {
+          s: "Pathology",
+          q: "Which congenital heart disease is the most common overall?",
+          a: "Ventricular septal defect (VSD).",
+        },
+        {
+          s: "Pathology",
+          q: "Which type of ASD is the most common?",
+          a: "Ostium secundum ASD (90%).",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of secondary hypertension?",
+          a: "Renal disease.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of left-sided heart failure?",
+          a: "Hypertension and coronary artery disease.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common type of cardiomyopathy?",
+          a: "Dilated cardiomyopathy.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of right-sided heart failure?",
+          a: "Left-sided heart failure.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of aortic stenosis in adults?",
+          a: "Calcific degeneration of a bicuspid aortic valve.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common complication of myocardial infarction?",
+          a: "Arrhythmia.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of sudden cardiac death in young athletes?",
+          a: "Hypertrophic cardiomyopathy.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of myocarditis?",
+          a: "Viral infection (Coxsackie B).",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of infective endocarditis in IV drug users?",
+          a: "Staphylococcus aureus.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of culture-negative endocarditis?",
+          a: "HACEK group organisms.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of infective endocarditis in prosthetic valves?",
+          a: "Staphylococcus epidermidis.",
+        },
 
-        function prevCard() {
-            if (currentIndex > 0) {
-                currentIndex--;
-                updateCard();
-            }
-        }
+        // ==================== PHARMACOLOGY ====================
+        {
+          s: "Pharmacology",
+          q: "Which drug is the drug of choice for the management of hypertensive urgency?",
+          a: "Captopril.",
+        },
+        {
+          s: "Pharmacology",
+          q: "Which drug is NOT a pharmacological action of Enalapril?",
+          a: "Increase glucose intolerance (it actually improves it).",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of dihydropyridine calcium channel blockers?",
+          a: "Blocking L-type calcium channels in vascular smooth muscle.",
+        },
+        {
+          s: "Pharmacology",
+          q: "Which calcium channel blocker has an inhibitory effect on phosphodiesterase?",
+          a: "None (this is the mechanism of milrinone).",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of hydralazine?",
+          a: "Potassium channel opener (causing vasodilation).",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of sodium nitroprusside?",
+          a: "Donor of nitric oxide (NO).",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of organic nitrates?",
+          a: "They release nitric oxide, causing venodilation (more potent on veins than arterioles).",
+        },
+        {
+          s: "Pharmacology",
+          q: "Which antianginal drug is contraindicated in Prinzmetal's angina?",
+          a: "Propranolol (beta-blockers).",
+        },
+        {
+          s: "Pharmacology",
+          q: "Which organic nitrate is devoid of first-pass metabolism?",
+          a: "Isosorbide mononitrate.",
+        },
+        {
+          s: "Pharmacology",
+          q: "Why is the combination of a beta-blocker and nitrate advantageous?",
+          a: "Beta-blockers prevent the reflex tachycardia induced by nitrates.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Milrinone?",
+          a: "Phosphodiesterase inhibitor.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Dobutamine?",
+          a: "Selective beta-1 agonist.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Losartan?",
+          a: "Angiotensin receptor blocker (ARB).",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Furosemide?",
+          a: "Na+/K+/2Cl- cotransporter inhibitor (loop diuretic).",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Digoxin?",
+          a: "Inhibits Na+/K+ ATPase, increasing intracellular calcium.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Statins?",
+          a: "HMG-CoA reductase inhibitors.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Gemfibrozil?",
+          a: "Increases lipoprotein lipase activity (fibrate).",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Niacin?",
+          a: "Decreases free fatty acid mobilization from adipocytes.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Ezetimibe?",
+          a: "Inhibits intestinal cholesterol absorption.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Cholestyramine?",
+          a: "Bile acid sequestration.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Adenosine?",
+          a: "Slows AV node conduction.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the cardiac effect of therapeutic doses of cardiac glycosides (Digoxin)?",
+          a: "Increase force of contraction (positive inotrope).",
+        },
+        {
+          s: "Pharmacology",
+          q: "Which pharmacological action of digoxin contributes to its use in atrial fibrillation?",
+          a: "Reduction of ventricular rate (by slowing AV node conduction).",
+        },
+        {
+          s: "Pharmacology",
+          q: "Why do loop diuretics benefit patients with pulmonary edema before diuresis ensues?",
+          a: "They cause venodilation, which reduces preload.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of dry cough caused by ACE inhibitors?",
+          a: "Inhibition of bradykinin breakdown.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Beta-blockers in heart failure?",
+          a: "Inhibit cardiac remodeling and decrease heart rate.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of tolerance to nitrates?",
+          a: "Diminished release of nitric oxide and compensatory mechanisms (baroreceptor/hormonal).",
+        },
+        {
+          s: "Pharmacology",
+          q: "Which dihydropyridine calcium channel blocker causes reflex tachycardia?",
+          a: "Nifedipine.",
+        },
+        {
+          s: "Pharmacology",
+          q: "Which drug is safe to use during pregnancy for hypertension?",
+          a: "Methyldopa.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Spironolactone?",
+          a: "Competes for aldosterone receptors.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Thiazide diuretics?",
+          a: "Inhibits Na+/Cl- cotransporter in the distal convoluted tubule.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Amiodarone?",
+          a: "Class III antiarrhythmic (blocks potassium channels) with additional Class I, II, and IV effects.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the drug of choice for prompt termination of supraventricular tachycardia?",
+          a: "Adenosine.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Esmolol?",
+          a: "Short-duration beta-adrenergic receptor blocker.",
+        },
+        {
+          s: "Pharmacology",
+          q: "Which drug is used for hypertensive emergencies?",
+          a: "Sodium nitroprusside.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Aliskiren?",
+          a: "Direct renin inhibitor.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Terazosin?",
+          a: "Alpha-1 adrenergic blocker (treats BPH and hypertension).",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Clonidine?",
+          a: "Central alpha-2 agonist.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Minoxidil?",
+          a: "Potassium channel opener (vasodilator).",
+        },
 
-        // Initialize the first card
+        // ==================== MICROBIOLOGY ====================
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of infective endocarditis?",
+          a: "Staphylococcus aureus (acute) and Viridans streptococci (subacute).",
+        },
+        {
+          s: "Microbiology",
+          q: "What are the HACEK organisms?",
+          a: "Haemophilus, Aggregatibacter, Cardiobacterium, Eikenella, Kingella.",
+        },
+        {
+          s: "Microbiology",
+          q: "Which organism causes Q fever?",
+          a: "Coxiella burnetii.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of myocarditis?",
+          a: "Coxsackie B virus.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the mechanism of rheumatic heart disease?",
+          a: "Molecular mimicry (antibodies against M protein cross-react with cardiac tissue).",
+        },
+        {
+          s: "Microbiology",
+          q: "Which organism causes Lyme disease and can lead to myocarditis?",
+          a: "Borrelia burgdorferi.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the primary virulence factor of Staphylococcus epidermidis?",
+          a: "Biofilm formation (via PIA).",
+        },
+        {
+          s: "Microbiology",
+          q: "Which bacteria is associated with subacute infective endocarditis?",
+          a: "Viridans streptococci.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of viral myocarditis?",
+          a: "Coxsackie B virus.",
+        },
+        {
+          s: "Microbiology",
+          q: "Which organism is associated with culture-negative endocarditis?",
+          a: "HACEK group organisms.",
+        },
+
+        // ==================== BIOCHEMISTRY ====================
+        {
+          s: "Biochemistry",
+          q: "What is the most specific cardiac marker for myocardial infarction?",
+          a: "Cardiac Troponin I (cTnI).",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the earliest cardiac marker to rise after myocardial infarction?",
+          a: "Myoglobin (within 1 hour).",
+        },
+        {
+          s: "Biochemistry",
+          q: "Which cardiac marker remains elevated the longest after myocardial infarction?",
+          a: "Troponin (7-10 days).",
+        },
+        {
+          s: "Biochemistry",
+          q: "Which lipoprotein is considered 'good' cholesterol?",
+          a: "High-density lipoprotein (HDL).",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the function of LCAT?",
+          a: "Lecithin-cholesterol acyltransferase (esterifies cholesterol in HDL).",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the function of CETP?",
+          a: "Cholesteryl ester transfer protein (transfers CE from HDL to VLDL).",
+        },
+        {
+          s: "Biochemistry",
+          q: "Which apolipoprotein is the major structural protein of HDL?",
+          a: "Apo A-I.",
+        },
+        {
+          s: "Biochemistry",
+          q: "Which apolipoprotein is the major structural protein of LDL?",
+          a: "Apo B-100.",
+        },
+        {
+          s: "Biochemistry",
+          q: "Which apolipoprotein is the major structural protein of chylomicrons?",
+          a: "Apo B-48.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of Lipoprotein Lipase (LPL)?",
+          a: "Hydrolyzes triglycerides in chylomicrons and VLDL.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of Hormone-Sensitive Lipase (HSL)?",
+          a: "Breaks down stored triglycerides in adipose tissue.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the genetic defect in Familial Hypercholesterolemia?",
+          a: "Mutation in the LDL receptor gene.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the genetic defect in Abetalipoproteinemia?",
+          a: "Mutation in the MTP (microsomal triglyceride transfer protein) gene.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the genetic defect in Tangier disease?",
+          a: "Mutation in the ABCA1 gene.",
+        },
+        {
+          s: "Biochemistry",
+          q: "Which enzyme is the rate-limiting step in cholesterol synthesis?",
+          a: "HMG-CoA reductase.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the effect of statins on LDL receptors?",
+          a: "They upregulate LDL receptors in the liver.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the effect of statins on cholesterol synthesis?",
+          a: "They inhibit HMG-CoA reductase.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the mechanism of action of bile acid sequestrants?",
+          a: "They bind bile acids in the intestine, increasing cholesterol excretion.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the mechanism of action of fibrates?",
+          a: "They activate PPAR-alpha, increasing lipoprotein lipase activity.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the mechanism of action of niacin?",
+          a: "It inhibits lipolysis in adipose tissue, reducing VLDL production.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the mechanism of action of ezetimibe?",
+          a: "It inhibits intestinal cholesterol absorption.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of C-reactive protein (CRP) in atherosclerosis?",
+          a: "It is an inflammatory marker that impairs NO synthesis and increases adhesion molecules.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the initial key event in the pathogenesis of atherosclerosis?",
+          a: "Endothelial dysfunction.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the initial visible lesion of atherosclerosis?",
+          a: "Fatty streak.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the hallmark of atherosclerosis?",
+          a: "Migration and proliferation of smooth muscle cells in the tunica intima.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of PDGF in atherosclerosis?",
+          a: "Stimulates migration and proliferation of smooth muscle cells.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of MCP-1 in atherosclerosis?",
+          a: "Recruits inflammatory cells (monocytes) to the site of injury.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of M-CSF in atherosclerosis?",
+          a: "Promotes differentiation of monocytes into macrophages.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of LOX-1 in atherogenesis?",
+          a: "It is a receptor for oxidized LDL, stimulating endothelial dysfunction.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of oxLDL in atherogenesis?",
+          a: "It is taken up by macrophages to form foam cells.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of HDL in atherosclerosis?",
+          a: "It mediates reverse cholesterol transport (protective).",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of LDL in atherosclerosis?",
+          a: "It deposits cholesterol in the arterial wall (atherogenic).",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of foam cells in atherosclerosis?",
+          a: "They are lipid-laden macrophages that form fatty streaks.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of smooth muscle cells in atherosclerosis?",
+          a: "They migrate and proliferate to form the fibrous cap.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of platelets in atherosclerosis?",
+          a: "They adhere to the injured endothelium and release growth factors.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of endothelial cells in atherosclerosis?",
+          a: "They become dysfunctional, increasing permeability to LDL.",
+        },
+        // ==================== PHYSIOLOGY (Part 2) ====================
+        {
+          s: "Physiology",
+          q: "What is the effect of potassium ions on the heart when present in excess?",
+          a: "Excess potassium can block conduction of the cardiac impulse from the atria to the ventricles through the AV bundle.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the effect of calcium deficiency on the heart?",
+          a: "It causes cardiac flaccidity.",
+        },
+        {
+          s: "Physiology",
+          q: "What causes the mean electrical axis of the heart to shift to the left?",
+          a: "At the end of deep expiration, when lying down, or in obese individuals.",
+        },
+        {
+          s: "Physiology",
+          q: "What happens when the left bundle branch is blocked?",
+          a: "There is intense left axis deviation and the QRS complex duration is greatly prolonged.",
+        },
+        {
+          s: "Physiology",
+          q: "What produces the first heart sound ('lub')?",
+          a: "Closure of the AV valves (mitral and tricuspid) at the beginning of systole.",
+        },
+        {
+          s: "Physiology",
+          q: "When is the first heart sound produced?",
+          a: "At the beginning of systole.",
+        },
+        {
+          s: "Physiology",
+          q: "What produces the QRS wave on an ECG?",
+          a: "Depolarization of the ventricles.",
+        },
+        {
+          s: "Physiology",
+          q: "What does the second heart sound immediately follow on the ECG?",
+          a: "The T wave.",
+        },
+        {
+          s: "Physiology",
+          q: "During isovolumetric relaxation, what happens to ventricular pressure?",
+          a: "It falls rapidly.",
+        },
+        {
+          s: "Physiology",
+          q: "What causes the rapid depolarization (phase 0) of the ventricular muscle action potential?",
+          a: "Opening of voltage-gated Na+ channels.",
+        },
+        {
+          s: "Physiology",
+          q: "During the cardiac cycle, are the aortic and mitral valves ever open at the same time?",
+          a: "No, they are never open at the same time.",
+        },
+        {
+          s: "Physiology",
+          q: "When does aortic pressure reach its lowest value?",
+          a: "During ventricular systole (just before the aortic valve opens).",
+        },
+        {
+          s: "Physiology",
+          q: "What prevents cardiac muscle from undergoing a tetanic contraction?",
+          a: "The refractory period of the action potential lasts into the relaxation phase of the contraction.",
+        },
+        {
+          s: "Physiology",
+          q: "What happens when parasympathetic nerves completely inhibit the SA node for several seconds?",
+          a: "There would be fewer P waves than T waves (ventricular escape).",
+        },
+        {
+          s: "Physiology",
+          q: "What happens to blood flow when the pressure gradient increases?",
+          a: "Blood flow varies directly with the pressure gradient.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the basic blood flow equation?",
+          a: "Flow = Pressure / Resistance.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the effect of high blood pressure on edema?",
+          a: "It increases capillary hydrostatic pressure, causing edema.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most likely cause of edema in a patient with mitral stenosis?",
+          a: "Increased capillary hydrostatic pressure.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most likely cause of edema in a patient with liver disease?",
+          a: "Decreased capillary oncotic pressure.",
+        },
+        {
+          s: "Physiology",
+          q: "What are the causes of edema?",
+          a: "High blood pressure, decreased plasma protein, leakage of plasma protein, and blockage of lymphatic vessels.",
+        },
+        {
+          s: "Physiology",
+          q: "What produces Korotkoff sounds?",
+          a: "Turbulent flow of blood through an artery.",
+        },
+        {
+          s: "Physiology",
+          q: "Which organ can tolerate the greatest reduction in blood flow?",
+          a: "The skin.",
+        },
+        {
+          s: "Physiology",
+          q: "What is recorded by an ECG machine when all cardiac cells are completely depolarized or completely repolarized?",
+          a: "The isoelectric line (or systolic time).",
+        },
+        {
+          s: "Physiology",
+          q: "What is the relationship between blood flow and resistance?",
+          a: "Blood flow varies inversely with resistance.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the final destination of lymph?",
+          a: "Venous blood.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the effect of hypertension on the heart?",
+          a: "It increases pressure work and can lead to left ventricular hypertrophy.",
+        },
+        {
+          s: "Physiology",
+          q: "Why does arterial blood pressure progressively shift with age?",
+          a: "Due to reduced vascular compliance and arteriosclerosis.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the effect of a high hematocrit on blood flow?",
+          a: "It increases viscosity, which decreases blood flow.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the primary function of the cardiovascular system?",
+          a: "To deliver oxygen and nutrients to tissues and remove carbon dioxide and waste products.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the pacemaker of the heart?",
+          a: "The Sinoatrial (SA) node.",
+        },
+        {
+          s: "Physiology",
+          q: "Define systole.",
+          a: "The phase of the heartbeat when the heart muscle contracts and pumps blood from the chambers into the arteries.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the effect of sympathetic stimulation on heart rate?",
+          a: "It increases heart rate.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the effect of parasympathetic stimulation on heart rate?",
+          a: "It decreases heart rate.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the formula for cardiac output?",
+          a: "Cardiac Output = Heart Rate × Stroke Volume.",
+        },
+        {
+          s: "Physiology",
+          q: "What is preload?",
+          a: "The volume of blood in the ventricles at the end of diastole.",
+        },
+        {
+          s: "Physiology",
+          q: "What is afterload?",
+          a: "The resistance the heart must pump against to eject blood.",
+        },
+        {
+          s: "Physiology",
+          q: "What is contractility?",
+          a: "The intrinsic ability of the heart muscle to contract.",
+        },
+        {
+          s: "Physiology",
+          q: "What is ejection fraction?",
+          a: "The percentage of blood ejected from the ventricle with each contraction.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the normal ejection fraction?",
+          a: "55-70%.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the effect of increased preload on stroke volume?",
+          a: "It increases stroke volume (Frank-Starling mechanism).",
+        },
+        {
+          s: "Physiology",
+          q: "What is the effect of increased afterload on stroke volume?",
+          a: "It decreases stroke volume.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the effect of increased contractility on stroke volume?",
+          a: "It increases stroke volume.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the Bainbridge reflex?",
+          a: "An increase in heart rate due to increased atrial pressure.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the Bezold-Jarisch reflex?",
+          a: "A reflex that causes bradycardia and hypotension in response to ventricular stretch.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the Cushing reflex?",
+          a: "A reflex that causes hypertension and bradycardia in response to increased intracranial pressure.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the Valsalva maneuver?",
+          a: "Forced expiration against a closed glottis, which increases intrathoracic pressure and decreases venous return.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the effect of the Valsalva maneuver on heart rate?",
+          a: "It initially increases heart rate, then decreases it.",
+        },
+        {
+          s: "Physiology",
+          q: "What is orthostatic hypotension?",
+          a: "A drop in blood pressure upon standing up.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the cause of orthostatic hypotension?",
+          a: "Inadequate compensatory mechanisms to maintain blood pressure upon standing.",
+        },
+        {
+          s: "Physiology",
+          q: "What is syncope?",
+          a: "Fainting due to a temporary loss of consciousness.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of syncope?",
+          a: "Vasovagal syncope (neurocardiogenic syncope).",
+        },
+
+        // ==================== PATHOLOGY (Part 2) ====================
+        {
+          s: "Pathology",
+          q: "What is the most common cause of aortic dissection?",
+          a: "Hypertension.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of aortic aneurysm?",
+          a: "Atherosclerosis.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of abdominal aortic aneurysm?",
+          a: "Atherosclerosis.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of thoracic aortic aneurysm?",
+          a: "Cystic medial degeneration.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of aortic regurgitation?",
+          a: "Aortic root dilation.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of mitral regurgitation?",
+          a: "Myxomatous degeneration (mitral valve prolapse).",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of tricuspid regurgitation?",
+          a: "Right ventricular dilation.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of pulmonary stenosis?",
+          a: "Congenital.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of aortic stenosis in young people?",
+          a: "Congenital bicuspid aortic valve.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of aortic stenosis in the elderly?",
+          a: "Calcific degeneration.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of mitral stenosis?",
+          a: "Rheumatic heart disease.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of infective endocarditis?",
+          a: "Staphylococcus aureus.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of pericarditis?",
+          a: "Viral infection.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of myocarditis?",
+          a: "Viral infection (Coxsackie B).",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of sudden cardiac death?",
+          a: "Coronary artery disease.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of heart failure?",
+          a: "Coronary artery disease.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of cardiogenic shock?",
+          a: "Myocardial infarction.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of hypertensive emergency?",
+          a: "Non-compliance with antihypertensive medications.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of pulmonary embolism?",
+          a: "Deep vein thrombosis (DVT).",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of deep vein thrombosis?",
+          a: "Virchow's triad (stasis, endothelial injury, hypercoagulability).",
+        },
+        {
+          s: "Pathology",
+          q: "What is Virchow's triad?",
+          a: "Stasis, endothelial injury, and hypercoagulability.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of arterial thrombosis?",
+          a: "Atherosclerosis.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of venous thrombosis?",
+          a: "Stasis.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of disseminated intravascular coagulation (DIC)?",
+          a: "Sepsis.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of thrombocytopenia?",
+          a: "Immune thrombocytopenic purpura (ITP).",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of hemophilia A?",
+          a: "Deficiency of factor VIII.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of hemophilia B?",
+          a: "Deficiency of factor IX.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of von Willebrand disease?",
+          a: "Deficiency of von Willebrand factor.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of anemia?",
+          a: "Iron deficiency.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of iron deficiency anemia?",
+          a: "Chronic blood loss.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of megaloblastic anemia?",
+          a: "Vitamin B12 or folate deficiency.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of aplastic anemia?",
+          a: "Idiopathic.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of hemolytic anemia?",
+          a: "G6PD deficiency.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of sickle cell anemia?",
+          a: "Homozygous mutation in the beta-globin gene.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of thalassemia?",
+          a: "Deletion of alpha or beta globin genes.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of leukemia?",
+          a: "Unknown.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of lymphoma?",
+          a: "Unknown.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of multiple myeloma?",
+          a: "Unknown.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of polycythemia vera?",
+          a: "JAK2 mutation.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of essential thrombocythemia?",
+          a: "JAK2 mutation.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of primary myelofibrosis?",
+          a: "JAK2 mutation.",
+        },
+
+        // ==================== PHARMACOLOGY (Part 2) ====================
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Aspirin?",
+          a: "Irreversibly inhibits cyclooxygenase (COX).",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Clopidogrel?",
+          a: "Irreversibly inhibits P2Y12 ADP receptor on platelets.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Heparin?",
+          a: "Potentiates antithrombin III.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Warfarin?",
+          a: "Inhibits vitamin K epoxide reductase.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Streptokinase?",
+          a: "It activates plasminogen to plasmin, causing fibrinolysis.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Alteplase (tPA)?",
+          a: "It activates plasminogen to plasmin, causing fibrinolysis.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Abciximab?",
+          a: "Glycoprotein IIb/IIIa inhibitor.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Dipyridamole?",
+          a: "Inhibits phosphodiesterase, increasing cAMP.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Cilostazol?",
+          a: "Inhibits phosphodiesterase III, increasing cAMP.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Nitroglycerin?",
+          a: "It releases nitric oxide, causing venodilation.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Isosorbide dinitrate?",
+          a: "It releases nitric oxide, causing venodilation.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Isosorbide mononitrate?",
+          a: "It releases nitric oxide, causing venodilation.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Metoprolol?",
+          a: "Beta-1 selective blocker.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Propranolol?",
+          a: "Non-selective beta blocker.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Atenolol?",
+          a: "Beta-1 selective blocker.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Carvedilol?",
+          a: "Alpha-1 and beta blocker.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Labetalol?",
+          a: "Alpha-1 and beta blocker.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Prazosin?",
+          a: "Alpha-1 blocker.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Doxazosin?",
+          a: "Alpha-1 blocker.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Terazosin?",
+          a: "Alpha-1 blocker.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Clonidine?",
+          a: "Central alpha-2 agonist.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Methyldopa?",
+          a: "Central alpha-2 agonist.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Hydralazine?",
+          a: "Potassium channel opener (vasodilator).",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Minoxidil?",
+          a: "Potassium channel opener (vasodilator).",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Sodium Nitroprusside?",
+          a: "Donor of nitric oxide (NO).",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Fenoldopam?",
+          a: "Dopamine-1 agonist.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Enalapril?",
+          a: "ACE inhibitor.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Lisinopril?",
+          a: "ACE inhibitor.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Captopril?",
+          a: "ACE inhibitor.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Losartan?",
+          a: "Angiotensin receptor blocker (ARB).",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Valsartan?",
+          a: "Angiotensin receptor blocker (ARB).",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Aliskiren?",
+          a: "Direct renin inhibitor.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Spironolactone?",
+          a: "Aldosterone antagonist.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Eplerenone?",
+          a: "Aldosterone antagonist.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Furosemide?",
+          a: "Loop diuretic (inhibits Na+/K+/2Cl- cotransporter).",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Bumetanide?",
+          a: "Loop diuretic.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Torsemide?",
+          a: "Loop diuretic.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Hydrochlorothiazide?",
+          a: "Thiazide diuretic (inhibits Na+/Cl- cotransporter).",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Chlorthalidone?",
+          a: "Thiazide diuretic.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Amiloride?",
+          a: "Potassium-sparing diuretic.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Triamterene?",
+          a: "Potassium-sparing diuretic.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Acetazolamide?",
+          a: "Carbonic anhydrase inhibitor.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Mannitol?",
+          a: "Osmotic diuretic.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Digoxin?",
+          a: "Inhibits Na+/K+ ATPase, increasing intracellular calcium.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Milrinone?",
+          a: "Phosphodiesterase inhibitor.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Dobutamine?",
+          a: "Selective beta-1 agonist.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Dopamine?",
+          a: "Dopamine agonist.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Norepinephrine?",
+          a: "Alpha and beta agonist.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Epinephrine?",
+          a: "Alpha and beta agonist.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Phenylephrine?",
+          a: "Alpha-1 agonist.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Isoproterenol?",
+          a: "Beta agonist.",
+        },
+
+        // ==================== MICROBIOLOGY (Part 2) ====================
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of infective endocarditis in IV drug users?",
+          a: "Staphylococcus aureus.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of infective endocarditis in prosthetic valves?",
+          a: "Staphylococcus epidermidis.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of subacute infective endocarditis?",
+          a: "Viridans streptococci.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of acute infective endocarditis?",
+          a: "Staphylococcus aureus.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of culture-negative endocarditis?",
+          a: "HACEK group organisms.",
+        },
+        {
+          s: "Microbiology",
+          q: "What are the HACEK organisms?",
+          a: "Haemophilus, Aggregatibacter, Cardiobacterium, Eikenella, Kingella.",
+        },
+        {
+          s: "Microbiology",
+          q: "Which organism causes Q fever?",
+          a: "Coxiella burnetii.",
+        },
+        {
+          s: "Microbiology",
+          q: "Which organism causes Lyme disease?",
+          a: "Borrelia burgdorferi.",
+        },
+        {
+          s: "Microbiology",
+          q: "Which organism causes rheumatic fever?",
+          a: "Streptococcus pyogenes (Group A Streptococcus).",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the mechanism of rheumatic heart disease?",
+          a: "Molecular mimicry (antibodies against M protein cross-react with cardiac tissue).",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the primary virulence factor of Staphylococcus epidermidis?",
+          a: "Biofilm formation.",
+        },
+        {
+          s: "Microbiology",
+          q: "Which organism causes myocarditis?",
+          a: "Coxsackie B virus.",
+        },
+        {
+          s: "Microbiology",
+          q: "Which organism causes pericarditis?",
+          a: "Coxsackie B virus.",
+        },
+        {
+          s: "Microbiology",
+          q: "Which organism causes Q fever endocarditis?",
+          a: "Coxiella burnetii.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the treatment for Q fever endocarditis?",
+          a: "Doxycycline and hydroxychloroquine.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the treatment for infective endocarditis caused by Viridans streptococci?",
+          a: "Penicillin G (with or without gentamicin).",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the treatment for infective endocarditis caused by Staphylococcus aureus?",
+          a: "Vancomycin (if MRSA) or nafcillin/oxacillin (if MSSA).",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the treatment for infective endocarditis caused by Enterococcus?",
+          a: "Ampicillin + gentamicin (or vancomycin + gentamicin).",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the treatment for infective endocarditis caused by HACEK organisms?",
+          a: "Ceftriaxone.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the treatment for culture-negative endocarditis?",
+          a: "Ampicillin + gentamicin (or vancomycin + gentamicin).",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of mycotic aneurysm?",
+          a: "Staphylococcus aureus.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of aortitis?",
+          a: "Treponema pallidum (syphilis).",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of pericarditis in developing countries?",
+          a: "Tuberculosis.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of myocarditis in developing countries?",
+          a: "Chagas disease (Trypanosoma cruzi).",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of endocarditis in developing countries?",
+          a: "Rheumatic heart disease.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of rheumatic fever?",
+          a: "Streptococcus pyogenes (Group A Streptococcus).",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of acute rheumatic fever?",
+          a: "Streptococcus pyogenes pharyngitis.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of post-streptococcal glomerulonephritis?",
+          a: "Streptococcus pyogenes.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of scarlet fever?",
+          a: "Streptococcus pyogenes.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of toxic shock syndrome?",
+          a: "Staphylococcus aureus.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of scalded skin syndrome?",
+          a: "Staphylococcus aureus.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of impetigo?",
+          a: "Staphylococcus aureus.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of cellulitis?",
+          a: "Staphylococcus aureus.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of erysipelas?",
+          a: "Streptococcus pyogenes.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of necrotizing fasciitis?",
+          a: "Streptococcus pyogenes.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of bacteremia?",
+          a: "Staphylococcus aureus.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of sepsis?",
+          a: "Staphylococcus aureus.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of septic shock?",
+          a: "Staphylococcus aureus.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of infective endocarditis in patients with a history of dental procedures?",
+          a: "Viridans streptococci.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of infective endocarditis in patients with a history of GI or GU procedures?",
+          a: "Enterococcus.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of infective endocarditis in patients with a history of IV drug use?",
+          a: "Staphylococcus aureus.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of infective endocarditis in patients with a history of prosthetic valve surgery?",
+          a: "Staphylococcus epidermidis.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of infective endocarditis in patients with a history of rheumatic heart disease?",
+          a: "Viridans streptococci.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of infective endocarditis in patients with a history of congenital heart disease?",
+          a: "Viridans streptococci.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of infective endocarditis in patients with a history of mitral valve prolapse?",
+          a: "Viridans streptococci.",
+        },
+
+        // ==================== BIOCHEMISTRY (Part 2) ====================
+        {
+          s: "Biochemistry",
+          q: "What is the most specific cardiac marker for myocardial infarction?",
+          a: "Cardiac Troponin I (cTnI).",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the earliest cardiac marker to rise after myocardial infarction?",
+          a: "Myoglobin (within 1 hour).",
+        },
+        {
+          s: "Biochemistry",
+          q: "Which cardiac marker remains elevated the longest after myocardial infarction?",
+          a: "Troponin (7-10 days).",
+        },
+        {
+          s: "Biochemistry",
+          q: "Which lipoprotein is considered 'good' cholesterol?",
+          a: "High-density lipoprotein (HDL).",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the function of LCAT?",
+          a: "Lecithin-cholesterol acyltransferase (esterifies cholesterol in HDL).",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the function of CETP?",
+          a: "Cholesteryl ester transfer protein (transfers CE from HDL to VLDL).",
+        },
+        {
+          s: "Biochemistry",
+          q: "Which apolipoprotein is the major structural protein of HDL?",
+          a: "Apo A-I.",
+        },
+        {
+          s: "Biochemistry",
+          q: "Which apolipoprotein is the major structural protein of LDL?",
+          a: "Apo B-100.",
+        },
+        {
+          s: "Biochemistry",
+          q: "Which apolipoprotein is the major structural protein of chylomicrons?",
+          a: "Apo B-48.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of Lipoprotein Lipase (LPL)?",
+          a: "Hydrolyzes triglycerides in chylomicrons and VLDL.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of Hormone-Sensitive Lipase (HSL)?",
+          a: "Breaks down stored triglycerides in adipose tissue.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the genetic defect in Familial Hypercholesterolemia?",
+          a: "Mutation in the LDL receptor gene.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the genetic defect in Abetalipoproteinemia?",
+          a: "Mutation in the MTP (microsomal triglyceride transfer protein) gene.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the genetic defect in Tangier disease?",
+          a: "Mutation in the ABCA1 gene.",
+        },
+        {
+          s: "Biochemistry",
+          q: "Which enzyme is the rate-limiting step in cholesterol synthesis?",
+          a: "HMG-CoA reductase.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the effect of statins on LDL receptors?",
+          a: "They upregulate LDL receptors in the liver.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the effect of statins on cholesterol synthesis?",
+          a: "They inhibit HMG-CoA reductase.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the mechanism of action of bile acid sequestrants?",
+          a: "They bind bile acids in the intestine, increasing cholesterol excretion.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the mechanism of action of fibrates?",
+          a: "They activate PPAR-alpha, increasing lipoprotein lipase activity.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the mechanism of action of niacin?",
+          a: "It inhibits lipolysis in adipose tissue, reducing VLDL production.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the mechanism of action of ezetimibe?",
+          a: "It inhibits intestinal cholesterol absorption.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of C-reactive protein (CRP) in atherosclerosis?",
+          a: "It is an inflammatory marker that impairs NO synthesis and increases adhesion molecules.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the initial key event in the pathogenesis of atherosclerosis?",
+          a: "Endothelial dysfunction.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the initial visible lesion of atherosclerosis?",
+          a: "Fatty streak.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the hallmark of atherosclerosis?",
+          a: "Migration and proliferation of smooth muscle cells in the tunica intima.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of PDGF in atherosclerosis?",
+          a: "Stimulates migration and proliferation of smooth muscle cells.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of MCP-1 in atherosclerosis?",
+          a: "Recruits inflammatory cells (monocytes) to the site of injury.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of M-CSF in atherosclerosis?",
+          a: "Promotes differentiation of monocytes into macrophages.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of LOX-1 in atherogenesis?",
+          a: "It is a receptor for oxidized LDL, stimulating endothelial dysfunction.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of oxLDL in atherogenesis?",
+          a: "It is taken up by macrophages to form foam cells.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of HDL in atherosclerosis?",
+          a: "It mediates reverse cholesterol transport (protective).",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of LDL in atherosclerosis?",
+          a: "It deposits cholesterol in the arterial wall (atherogenic).",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of foam cells in atherosclerosis?",
+          a: "They are lipid-laden macrophages that form fatty streaks.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of smooth muscle cells in atherosclerosis?",
+          a: "They migrate and proliferate to form the fibrous cap.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of platelets in atherosclerosis?",
+          a: "They adhere to the injured endothelium and release growth factors.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of endothelial cells in atherosclerosis?",
+          a: "They become dysfunctional, increasing permeability to LDL.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the most common cause of hypercholesterolemia?",
+          a: "Diet high in saturated fats.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the most common cause of hypertriglyceridemia?",
+          a: "Obesity and insulin resistance.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the most common cause of low HDL?",
+          a: "Smoking and obesity.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the most common cause of high LDL?",
+          a: "Diet high in saturated fats.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the most common cause of high VLDL?",
+          a: "Insulin resistance.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the most common cause of high chylomicrons?",
+          a: "Lipoprotein lipase deficiency.",
+        },
+        // ==================== PHYSIOLOGY (Part 3) ====================
+        {
+          s: "Physiology",
+          q: "What is the primary function of the cardiovascular system?",
+          a: "To deliver oxygen and nutrients to tissues and remove carbon dioxide and waste products.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the pacemaker of the heart?",
+          a: "The Sinoatrial (SA) node.",
+        },
+        {
+          s: "Physiology",
+          q: "Define systole.",
+          a: "The phase of the heartbeat when the heart muscle contracts and pumps blood from the chambers into the arteries.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the effect of sympathetic stimulation on heart rate?",
+          a: "It increases heart rate.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the effect of parasympathetic stimulation on heart rate?",
+          a: "It decreases heart rate.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the formula for cardiac output?",
+          a: "Cardiac Output = Heart Rate × Stroke Volume.",
+        },
+        {
+          s: "Physiology",
+          q: "What is preload?",
+          a: "The volume of blood in the ventricles at the end of diastole.",
+        },
+        {
+          s: "Physiology",
+          q: "What is afterload?",
+          a: "The resistance the heart must pump against to eject blood.",
+        },
+        {
+          s: "Physiology",
+          q: "What is contractility?",
+          a: "The intrinsic ability of the heart muscle to contract.",
+        },
+        {
+          s: "Physiology",
+          q: "What is ejection fraction?",
+          a: "The percentage of blood ejected from the ventricle with each contraction.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the normal ejection fraction?",
+          a: "55-70%.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the effect of increased preload on stroke volume?",
+          a: "It increases stroke volume (Frank-Starling mechanism).",
+        },
+        {
+          s: "Physiology",
+          q: "What is the effect of increased afterload on stroke volume?",
+          a: "It decreases stroke volume.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the effect of increased contractility on stroke volume?",
+          a: "It increases stroke volume.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the Bainbridge reflex?",
+          a: "An increase in heart rate due to increased atrial pressure.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the Bezold-Jarisch reflex?",
+          a: "A reflex that causes bradycardia and hypotension in response to ventricular stretch.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the Cushing reflex?",
+          a: "A reflex that causes hypertension and bradycardia in response to increased intracranial pressure.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the Valsalva maneuver?",
+          a: "Forced expiration against a closed glottis, which increases intrathoracic pressure and decreases venous return.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the effect of the Valsalva maneuver on heart rate?",
+          a: "It initially increases heart rate, then decreases it.",
+        },
+        {
+          s: "Physiology",
+          q: "What is orthostatic hypotension?",
+          a: "A drop in blood pressure upon standing up.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the cause of orthostatic hypotension?",
+          a: "Inadequate compensatory mechanisms to maintain blood pressure upon standing.",
+        },
+        {
+          s: "Physiology",
+          q: "What is syncope?",
+          a: "Fainting due to a temporary loss of consciousness.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of syncope?",
+          a: "Vasovagal syncope (neurocardiogenic syncope).",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of heart failure?",
+          a: "Coronary artery disease.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of cardiogenic shock?",
+          a: "Myocardial infarction.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of pulmonary embolism?",
+          a: "Deep vein thrombosis (DVT).",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of deep vein thrombosis?",
+          a: "Virchow's triad (stasis, endothelial injury, hypercoagulability).",
+        },
+        {
+          s: "Physiology",
+          q: "What is Virchow's triad?",
+          a: "Stasis, endothelial injury, and hypercoagulability.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of arterial thrombosis?",
+          a: "Atherosclerosis.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of venous thrombosis?",
+          a: "Stasis.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of disseminated intravascular coagulation (DIC)?",
+          a: "Sepsis.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of thrombocytopenia?",
+          a: "Immune thrombocytopenic purpura (ITP).",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of hemophilia A?",
+          a: "Deficiency of factor VIII.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of hemophilia B?",
+          a: "Deficiency of factor IX.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of von Willebrand disease?",
+          a: "Deficiency of von Willebrand factor.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of anemia?",
+          a: "Iron deficiency.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of iron deficiency anemia?",
+          a: "Chronic blood loss.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of megaloblastic anemia?",
+          a: "Vitamin B12 or folate deficiency.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of aplastic anemia?",
+          a: "Idiopathic.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of hemolytic anemia?",
+          a: "G6PD deficiency.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of sickle cell anemia?",
+          a: "Homozygous mutation in the beta-globin gene.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of thalassemia?",
+          a: "Deletion of alpha or beta globin genes.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of leukemia?",
+          a: "Unknown.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of lymphoma?",
+          a: "Unknown.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of multiple myeloma?",
+          a: "Unknown.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of polycythemia vera?",
+          a: "JAK2 mutation.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of essential thrombocythemia?",
+          a: "JAK2 mutation.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of primary myelofibrosis?",
+          a: "JAK2 mutation.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of aplastic crisis?",
+          a: "Parvovirus B19 infection.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of hemolytic crisis?",
+          a: "G6PD deficiency.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of vaso-occlusive crisis?",
+          a: "Sickle cell anemia.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of splenic sequestration crisis?",
+          a: "Sickle cell anemia.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of acute chest syndrome?",
+          a: "Sickle cell anemia.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of priapism?",
+          a: "Sickle cell anemia.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of stroke in children?",
+          a: "Sickle cell anemia.",
+        },
+
+        // ==================== PATHOLOGY (Part 3) ====================
+        {
+          s: "Pathology",
+          q: "What is the most common cause of aortic stenosis in adults?",
+          a: "Calcific degeneration of a bicuspid aortic valve.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of mitral regurgitation?",
+          a: "Myxomatous degeneration (mitral valve prolapse).",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of tricuspid regurgitation?",
+          a: "Right ventricular dilation.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of pulmonary stenosis?",
+          a: "Congenital.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of aortic stenosis in young people?",
+          a: "Congenital bicuspid aortic valve.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of aortic stenosis in the elderly?",
+          a: "Calcific degeneration.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of mitral stenosis?",
+          a: "Rheumatic heart disease.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of infective endocarditis?",
+          a: "Staphylococcus aureus.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of pericarditis?",
+          a: "Viral infection.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of myocarditis?",
+          a: "Viral infection (Coxsackie B).",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of sudden cardiac death?",
+          a: "Coronary artery disease.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of hypertensive emergency?",
+          a: "Non-compliance with antihypertensive medications.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of abdominal aortic aneurysm?",
+          a: "Atherosclerosis.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of thoracic aortic aneurysm?",
+          a: "Cystic medial degeneration.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of aortic regurgitation?",
+          a: "Aortic root dilation.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of aortic dissection?",
+          a: "Hypertension.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of aortic aneurysm?",
+          a: "Atherosclerosis.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of peripheral artery disease?",
+          a: "Atherosclerosis.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of Raynaud's phenomenon?",
+          a: "Idiopathic.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of Buerger's disease?",
+          a: "Smoking.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of Takayasu arteritis?",
+          a: "Unknown.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of giant cell arteritis?",
+          a: "Unknown.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of polyarteritis nodosa?",
+          a: "Hepatitis B virus.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of Kawasaki disease?",
+          a: "Unknown.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of Henoch-Schönlein purpura?",
+          a: "Unknown.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of granulomatosis with polyangiitis?",
+          a: "Unknown.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of microscopic polyangiitis?",
+          a: "Unknown.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of eosinophilic granulomatosis with polyangiitis?",
+          a: "Unknown.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of Behçet's disease?",
+          a: "Unknown.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of thromboangiitis obliterans?",
+          a: "Smoking.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of varicose veins?",
+          a: "Venous valve incompetence.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of lymphedema?",
+          a: "Lymphatic obstruction.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of deep vein thrombosis?",
+          a: "Virchow's triad (stasis, endothelial injury, hypercoagulability).",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of pulmonary embolism?",
+          a: "Deep vein thrombosis (DVT).",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of fat embolism?",
+          a: "Long bone fractures.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of air embolism?",
+          a: "Surgery or trauma.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of amniotic fluid embolism?",
+          a: "Childbirth.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of septic embolism?",
+          a: "Infective endocarditis.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of tumor embolism?",
+          a: "Cancer.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of atherosclerosis?",
+          a: "Endothelial dysfunction.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of coronary artery disease?",
+          a: "Atherosclerosis.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of myocardial infarction?",
+          a: "Atherosclerosis.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of angina?",
+          a: "Atherosclerosis.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of stable angina?",
+          a: "Atherosclerosis.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of unstable angina?",
+          a: "Plaque rupture.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of variant angina?",
+          a: "Coronary artery spasm.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of silent ischemia?",
+          a: "Diabetes mellitus.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of heart failure with preserved ejection fraction?",
+          a: "Hypertension.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of heart failure with reduced ejection fraction?",
+          a: "Coronary artery disease.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of right heart failure?",
+          a: "Left heart failure.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of cor pulmonale?",
+          a: "COPD.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of pulmonary hypertension?",
+          a: "Left heart disease.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of pulmonary arterial hypertension?",
+          a: "Idiopathic.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of secondary pulmonary hypertension?",
+          a: "Left heart disease.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of primary pulmonary hypertension?",
+          a: "BMPR2 mutation.",
+        },
+
+        // ==================== PHARMACOLOGY (Part 3) ====================
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Aspirin?",
+          a: "Irreversibly inhibits cyclooxygenase (COX).",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Clopidogrel?",
+          a: "Irreversibly inhibits P2Y12 ADP receptor on platelets.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Heparin?",
+          a: "Potentiates antithrombin III.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Warfarin?",
+          a: "Inhibits vitamin K epoxide reductase.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Streptokinase?",
+          a: "It activates plasminogen to plasmin, causing fibrinolysis.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Alteplase (tPA)?",
+          a: "It activates plasminogen to plasmin, causing fibrinolysis.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Abciximab?",
+          a: "Glycoprotein IIb/IIIa inhibitor.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Dipyridamole?",
+          a: "Inhibits phosphodiesterase, increasing cAMP.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Cilostazol?",
+          a: "Inhibits phosphodiesterase III, increasing cAMP.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Nitroglycerin?",
+          a: "It releases nitric oxide, causing venodilation.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Isosorbide dinitrate?",
+          a: "It releases nitric oxide, causing venodilation.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Isosorbide mononitrate?",
+          a: "It releases nitric oxide, causing venodilation.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Metoprolol?",
+          a: "Beta-1 selective blocker.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Propranolol?",
+          a: "Non-selective beta blocker.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Atenolol?",
+          a: "Beta-1 selective blocker.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Carvedilol?",
+          a: "Alpha-1 and beta blocker.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Labetalol?",
+          a: "Alpha-1 and beta blocker.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Prazosin?",
+          a: "Alpha-1 blocker.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Doxazosin?",
+          a: "Alpha-1 blocker.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Terazosin?",
+          a: "Alpha-1 blocker.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Clonidine?",
+          a: "Central alpha-2 agonist.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Methyldopa?",
+          a: "Central alpha-2 agonist.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Hydralazine?",
+          a: "Potassium channel opener (vasodilator).",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Minoxidil?",
+          a: "Potassium channel opener (vasodilator).",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Sodium Nitroprusside?",
+          a: "Donor of nitric oxide (NO).",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Fenoldopam?",
+          a: "Dopamine-1 agonist.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Enalapril?",
+          a: "ACE inhibitor.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Lisinopril?",
+          a: "ACE inhibitor.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Captopril?",
+          a: "ACE inhibitor.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Losartan?",
+          a: "Angiotensin receptor blocker (ARB).",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Valsartan?",
+          a: "Angiotensin receptor blocker (ARB).",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Aliskiren?",
+          a: "Direct renin inhibitor.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Spironolactone?",
+          a: "Aldosterone antagonist.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Eplerenone?",
+          a: "Aldosterone antagonist.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Furosemide?",
+          a: "Loop diuretic (inhibits Na+/K+/2Cl- cotransporter).",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Bumetanide?",
+          a: "Loop diuretic.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Torsemide?",
+          a: "Loop diuretic.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Hydrochlorothiazide?",
+          a: "Thiazide diuretic (inhibits Na+/Cl- cotransporter).",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Chlorthalidone?",
+          a: "Thiazide diuretic.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Amiloride?",
+          a: "Potassium-sparing diuretic.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Triamterene?",
+          a: "Potassium-sparing diuretic.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Acetazolamide?",
+          a: "Carbonic anhydrase inhibitor.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Mannitol?",
+          a: "Osmotic diuretic.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Digoxin?",
+          a: "Inhibits Na+/K+ ATPase, increasing intracellular calcium.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Milrinone?",
+          a: "Phosphodiesterase inhibitor.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Dobutamine?",
+          a: "Selective beta-1 agonist.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Dopamine?",
+          a: "Dopamine agonist.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Norepinephrine?",
+          a: "Alpha and beta agonist.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Epinephrine?",
+          a: "Alpha and beta agonist.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Phenylephrine?",
+          a: "Alpha-1 agonist.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Isoproterenol?",
+          a: "Beta agonist.",
+        },
+
+        // ==================== MICROBIOLOGY (Part 3) ====================
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of infective endocarditis in IV drug users?",
+          a: "Staphylococcus aureus.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of infective endocarditis in prosthetic valves?",
+          a: "Staphylococcus epidermidis.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of subacute infective endocarditis?",
+          a: "Viridans streptococci.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of acute infective endocarditis?",
+          a: "Staphylococcus aureus.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of culture-negative endocarditis?",
+          a: "HACEK group organisms.",
+        },
+        {
+          s: "Microbiology",
+          q: "What are the HACEK organisms?",
+          a: "Haemophilus, Aggregatibacter, Cardiobacterium, Eikenella, Kingella.",
+        },
+        {
+          s: "Microbiology",
+          q: "Which organism causes Q fever?",
+          a: "Coxiella burnetii.",
+        },
+        {
+          s: "Microbiology",
+          q: "Which organism causes Lyme disease?",
+          a: "Borrelia burgdorferi.",
+        },
+        {
+          s: "Microbiology",
+          q: "Which organism causes rheumatic fever?",
+          a: "Streptococcus pyogenes (Group A Streptococcus).",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the mechanism of rheumatic heart disease?",
+          a: "Molecular mimicry (antibodies against M protein cross-react with cardiac tissue).",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the primary virulence factor of Staphylococcus epidermidis?",
+          a: "Biofilm formation.",
+        },
+        {
+          s: "Microbiology",
+          q: "Which organism causes myocarditis?",
+          a: "Coxsackie B virus.",
+        },
+        {
+          s: "Microbiology",
+          q: "Which organism causes pericarditis?",
+          a: "Coxsackie B virus.",
+        },
+        {
+          s: "Microbiology",
+          q: "Which organism causes Q fever endocarditis?",
+          a: "Coxiella burnetii.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the treatment for Q fever endocarditis?",
+          a: "Doxycycline and hydroxychloroquine.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the treatment for infective endocarditis caused by Viridans streptococci?",
+          a: "Penicillin G (with or without gentamicin).",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the treatment for infective endocarditis caused by Staphylococcus aureus?",
+          a: "Vancomycin (if MRSA) or nafcillin/oxacillin (if MSSA).",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the treatment for infective endocarditis caused by Enterococcus?",
+          a: "Ampicillin + gentamicin (or vancomycin + gentamicin).",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the treatment for infective endocarditis caused by HACEK organisms?",
+          a: "Ceftriaxone.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the treatment for culture-negative endocarditis?",
+          a: "Ampicillin + gentamicin (or vancomycin + gentamicin).",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of mycotic aneurysm?",
+          a: "Staphylococcus aureus.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of aortitis?",
+          a: "Treponema pallidum (syphilis).",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of pericarditis in developing countries?",
+          a: "Tuberculosis.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of myocarditis in developing countries?",
+          a: "Chagas disease (Trypanosoma cruzi).",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of endocarditis in developing countries?",
+          a: "Rheumatic heart disease.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of rheumatic fever?",
+          a: "Streptococcus pyogenes (Group A Streptococcus).",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of acute rheumatic fever?",
+          a: "Streptococcus pyogenes pharyngitis.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of post-streptococcal glomerulonephritis?",
+          a: "Streptococcus pyogenes.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of scarlet fever?",
+          a: "Streptococcus pyogenes.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of toxic shock syndrome?",
+          a: "Staphylococcus aureus.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of scalded skin syndrome?",
+          a: "Staphylococcus aureus.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of impetigo?",
+          a: "Staphylococcus aureus.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of cellulitis?",
+          a: "Staphylococcus aureus.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of erysipelas?",
+          a: "Streptococcus pyogenes.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of necrotizing fasciitis?",
+          a: "Streptococcus pyogenes.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of bacteremia?",
+          a: "Staphylococcus aureus.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of sepsis?",
+          a: "Staphylococcus aureus.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of septic shock?",
+          a: "Staphylococcus aureus.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of infective endocarditis in patients with a history of dental procedures?",
+          a: "Viridans streptococci.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of infective endocarditis in patients with a history of GI or GU procedures?",
+          a: "Enterococcus.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of infective endocarditis in patients with a history of IV drug use?",
+          a: "Staphylococcus aureus.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of infective endocarditis in patients with a history of prosthetic valve surgery?",
+          a: "Staphylococcus epidermidis.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of infective endocarditis in patients with a history of rheumatic heart disease?",
+          a: "Viridans streptococci.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of infective endocarditis in patients with a history of congenital heart disease?",
+          a: "Viridans streptococci.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of infective endocarditis in patients with a history of mitral valve prolapse?",
+          a: "Viridans streptococci.",
+        },
+
+        // ==================== BIOCHEMISTRY (Part 3) ====================
+        {
+          s: "Biochemistry",
+          q: "What is the most specific cardiac marker for myocardial infarction?",
+          a: "Cardiac Troponin I (cTnI).",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the earliest cardiac marker to rise after myocardial infarction?",
+          a: "Myoglobin (within 1 hour).",
+        },
+        {
+          s: "Biochemistry",
+          q: "Which cardiac marker remains elevated the longest after myocardial infarction?",
+          a: "Troponin (7-10 days).",
+        },
+        {
+          s: "Biochemistry",
+          q: "Which lipoprotein is considered 'good' cholesterol?",
+          a: "High-density lipoprotein (HDL).",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the function of LCAT?",
+          a: "Lecithin-cholesterol acyltransferase (esterifies cholesterol in HDL).",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the function of CETP?",
+          a: "Cholesteryl ester transfer protein (transfers CE from HDL to VLDL).",
+        },
+        {
+          s: "Biochemistry",
+          q: "Which apolipoprotein is the major structural protein of HDL?",
+          a: "Apo A-I.",
+        },
+        {
+          s: "Biochemistry",
+          q: "Which apolipoprotein is the major structural protein of LDL?",
+          a: "Apo B-100.",
+        },
+        {
+          s: "Biochemistry",
+          q: "Which apolipoprotein is the major structural protein of chylomicrons?",
+          a: "Apo B-48.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of Lipoprotein Lipase (LPL)?",
+          a: "Hydrolyzes triglycerides in chylomicrons and VLDL.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of Hormone-Sensitive Lipase (HSL)?",
+          a: "Breaks down stored triglycerides in adipose tissue.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the genetic defect in Familial Hypercholesterolemia?",
+          a: "Mutation in the LDL receptor gene.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the genetic defect in Abetalipoproteinemia?",
+          a: "Mutation in the MTP (microsomal triglyceride transfer protein) gene.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the genetic defect in Tangier disease?",
+          a: "Mutation in the ABCA1 gene.",
+        },
+        {
+          s: "Biochemistry",
+          q: "Which enzyme is the rate-limiting step in cholesterol synthesis?",
+          a: "HMG-CoA reductase.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the effect of statins on LDL receptors?",
+          a: "They upregulate LDL receptors in the liver.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the effect of statins on cholesterol synthesis?",
+          a: "They inhibit HMG-CoA reductase.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the mechanism of action of bile acid sequestrants?",
+          a: "They bind bile acids in the intestine, increasing cholesterol excretion.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the mechanism of action of fibrates?",
+          a: "They activate PPAR-alpha, increasing lipoprotein lipase activity.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the mechanism of action of niacin?",
+          a: "It inhibits lipolysis in adipose tissue, reducing VLDL production.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the mechanism of action of ezetimibe?",
+          a: "It inhibits intestinal cholesterol absorption.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of C-reactive protein (CRP) in atherosclerosis?",
+          a: "It is an inflammatory marker that impairs NO synthesis and increases adhesion molecules.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the initial key event in the pathogenesis of atherosclerosis?",
+          a: "Endothelial dysfunction.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the initial visible lesion of atherosclerosis?",
+          a: "Fatty streak.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the hallmark of atherosclerosis?",
+          a: "Migration and proliferation of smooth muscle cells in the tunica intima.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of PDGF in atherosclerosis?",
+          a: "Stimulates migration and proliferation of smooth muscle cells.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of MCP-1 in atherosclerosis?",
+          a: "Recruits inflammatory cells (monocytes) to the site of injury.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of M-CSF in atherosclerosis?",
+          a: "Promotes differentiation of monocytes into macrophages.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of LOX-1 in atherogenesis?",
+          a: "It is a receptor for oxidized LDL, stimulating endothelial dysfunction.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of oxLDL in atherogenesis?",
+          a: "It is taken up by macrophages to form foam cells.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of HDL in atherosclerosis?",
+          a: "It mediates reverse cholesterol transport (protective).",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of LDL in atherosclerosis?",
+          a: "It deposits cholesterol in the arterial wall (atherogenic).",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of foam cells in atherosclerosis?",
+          a: "They are lipid-laden macrophages that form fatty streaks.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of smooth muscle cells in atherosclerosis?",
+          a: "They migrate and proliferate to form the fibrous cap.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of platelets in atherosclerosis?",
+          a: "They adhere to the injured endothelium and release growth factors.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the role of endothelial cells in atherosclerosis?",
+          a: "They become dysfunctional, increasing permeability to LDL.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the most common cause of hypercholesterolemia?",
+          a: "Diet high in saturated fats.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the most common cause of hypertriglyceridemia?",
+          a: "Obesity and insulin resistance.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the most common cause of low HDL?",
+          a: "Smoking and obesity.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the most common cause of high LDL?",
+          a: "Diet high in saturated fats.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the most common cause of high VLDL?",
+          a: "Insulin resistance.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the most common cause of high chylomicrons?",
+          a: "Lipoprotein lipase deficiency.",
+        },
+        // ==================== ANATOMY: GROSS (Part 2) ====================
+        {
+          s: "Anatomy",
+          q: "Which artery is the first branch of the ascending aorta?",
+          a: "The coronary arteries.",
+        },
+        {
+          s: "Anatomy",
+          q: "Which coronary artery supplies the right atrium, most of the right ventricle, and the posterior third of the interventricular septum?",
+          a: "The right coronary artery (RCA).",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the vein that runs alongside the anterior interventricular artery (LAD)?",
+          a: "The great cardiac vein.",
+        },
+        {
+          s: "Anatomy",
+          q: "Where is the sinoatrial (SA) node located?",
+          a: "In the right atrial wall, near the opening of the superior vena cava.",
+        },
+        {
+          s: "Anatomy",
+          q: "What are the three layers of the heart wall from innermost to outermost?",
+          a: "Endocardium → Myocardium → Epicardium.",
+        },
+        {
+          s: "Anatomy",
+          q: "Which structure is a thick muscular ridge in the right ventricle that separates the inflow and outflow tracts?",
+          a: "The supraventricular crest (crista supraventricularis).",
+        },
+        {
+          s: "Anatomy",
+          q: "Which valve separates the left atrium from the left ventricle?",
+          a: "The mitral (bicuspid) valve.",
+        },
+        {
+          s: "Anatomy",
+          q: "Which valve separates the right atrium from the right ventricle?",
+          a: "The tricuspid valve.",
+        },
+        {
+          s: "Anatomy",
+          q: "Which valve separates the left ventricle from the aorta?",
+          a: "The aortic valve.",
+        },
+        {
+          s: "Anatomy",
+          q: "Which valve separates the right ventricle from the pulmonary trunk?",
+          a: "The pulmonary valve.",
+        },
+        {
+          s: "Anatomy",
+          q: "What are the three branches of the aortic arch?",
+          a: "Brachiocephalic artery, left common carotid artery, and left subclavian artery.",
+        },
+        {
+          s: "Anatomy",
+          q: "Which artery supplies the diaphragm?",
+          a: "The phrenic artery.",
+        },
+        {
+          s: "Anatomy",
+          q: "Which nerve supplies the diaphragm?",
+          a: "The phrenic nerve.",
+        },
+        {
+          s: "Anatomy",
+          q: "Which nerve is at risk of injury during a pericardiocentesis?",
+          a: "The phrenic nerve.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the membrane that surrounds the heart?",
+          a: "The pericardium.",
+        },
+        {
+          s: "Anatomy",
+          q: "What are the two layers of the serous pericardium?",
+          a: "The parietal layer and the visceral layer (epicardium).",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the space between the two layers of the serous pericardium?",
+          a: "The pericardial cavity.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the fluid that fills the pericardial cavity?",
+          a: "Pericardial fluid.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the function of pericardial fluid?",
+          a: "To reduce friction between the heart and the pericardium.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the tough outer layer of the pericardium?",
+          a: "The fibrous pericardium.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the condition where fluid accumulates in the pericardial cavity?",
+          a: "Pericardial effusion.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the condition where the pericardium becomes inflamed?",
+          a: "Pericarditis.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the condition where the pericardium becomes thickened and restricts heart filling?",
+          a: "Constrictive pericarditis.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the condition where blood accumulates in the pericardial cavity?",
+          a: "Hemopericardium.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the condition where the heart is compressed by fluid in the pericardial cavity?",
+          a: "Cardiac tamponade.",
+        },
+        {
+          s: "Anatomy",
+          q: "What are the classic signs of cardiac tamponade?",
+          a: "Hypotension, muffled heart sounds, and increased jugular venous pressure (Beck's Triad).",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the treatment for cardiac tamponade?",
+          a: "Pericardiocentesis (drainage of fluid).",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the procedure to remove fluid from the pericardial cavity?",
+          a: "Pericardiocentesis.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the procedure to remove the pericardium?",
+          a: "Pericardiectomy.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the condition where the heart is enlarged?",
+          a: "Cardiomegaly.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the condition where the heart muscle is inflamed?",
+          a: "Myocarditis.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the condition where the inner lining of the heart is inflamed?",
+          a: "Endocarditis.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the condition where the heart valves are inflamed?",
+          a: "Valvulitis.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the condition where the heart valves are narrowed?",
+          a: "Stenosis.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the condition where the heart valves are leaky?",
+          a: "Regurgitation (or insufficiency).",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the condition where the heart valves prolapse?",
+          a: "Mitral valve prolapse.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the condition where the heart valves are thickened and calcified?",
+          a: "Aortic stenosis.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the condition where the heart valves are destroyed by infection?",
+          a: "Infective endocarditis.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the condition where the heart valves are damaged by rheumatic fever?",
+          a: "Rheumatic heart disease.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the condition where the heart valves are damaged by syphilis?",
+          a: "Syphilitic heart disease.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the condition where the heart valves are damaged by Marfan syndrome?",
+          a: "Marfan syndrome.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the condition where the heart valves are damaged by Ehlers-Danlos syndrome?",
+          a: "Ehlers-Danlos syndrome.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the condition where the heart valves are damaged by lupus?",
+          a: "Libman-Sacks endocarditis.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the condition where the heart valves are damaged by carcinoid syndrome?",
+          a: "Carcinoid heart disease.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the condition where the heart valves are damaged by drugs?",
+          a: "Drug-induced valvulopathy.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the condition where the heart valves are damaged by radiation?",
+          a: "Radiation-induced valvulopathy.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the condition where the heart valves are damaged by trauma?",
+          a: "Traumatic valvular injury.",
+        },
+
+        // ==================== ANATOMY: HISTOLOGY (Part 2) ====================
+        {
+          s: "Anatomy",
+          q: "What is the primary tissue type found in the tunica media of muscular arteries?",
+          a: "Smooth muscle tissue.",
+        },
+        {
+          s: "Anatomy",
+          q: "Which layer of a blood vessel is composed of endothelium and subendothelial connective tissue?",
+          a: "The tunica intima.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the specialized cell-cell junction that allows cardiac muscle cells to contract as a syncytium?",
+          a: "Gap junctions (found within intercalated discs).",
+        },
+        {
+          s: "Anatomy",
+          q: "Which layer of the heart is also known as the visceral pericardium?",
+          a: "The epicardium.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the connective tissue layer that separates the endocardium from the myocardium?",
+          a: "The subendocardial layer.",
+        },
+        {
+          s: "Anatomy",
+          q: "Which type of blood vessel has the thickest tunica media?",
+          a: "Arteries (specifically muscular arteries).",
+        },
+        {
+          s: "Anatomy",
+          q: "Which type of blood vessel has valves to prevent backflow of blood?",
+          a: "Veins.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the specialized cardiac muscle cells that are responsible for generating the heartbeat?",
+          a: "Pacemaker cells (SA node cells).",
+        },
+        {
+          s: "Anatomy",
+          q: "Which type of capillary is found in the liver, spleen, and bone marrow?",
+          a: "Sinusoidal capillaries.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the layer of the heart that is composed of simple squamous epithelium (mesothelium)?",
+          a: "The epicardium (visceral pericardium).",
+        },
+        {
+          s: "Anatomy",
+          q: "Which structure in the heart is responsible for the delay of electrical impulses between the atria and ventricles?",
+          a: "The AV node.",
+        },
+        {
+          s: "Anatomy",
+          q: "What type of epithelium lines the inside of the heart chambers?",
+          a: "Simple squamous epithelium (endothelium).",
+        },
+        {
+          s: "Anatomy",
+          q: "Which vessel has a more prominent internal elastic lamina: a muscular artery or a vein?",
+          a: "A muscular artery.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the connective tissue that forms the fibrous skeleton of the heart?",
+          a: "Dense irregular connective tissue.",
+        },
+        {
+          s: "Anatomy",
+          q: "Which cells are responsible for the production of collagen and elastin in the heart valves?",
+          a: "Fibroblasts.",
+        },
+        {
+          s: "Anatomy",
+          q: "What type of muscle tissue is found in the heart?",
+          a: "Cardiac muscle tissue.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the protein that makes up the thin filaments in cardiac muscle?",
+          a: "Actin.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the protein that makes up the thick filaments in cardiac muscle?",
+          a: "Myosin.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the regulatory protein that binds calcium in cardiac muscle?",
+          a: "Troponin C.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the regulatory protein that blocks the myosin-binding site on actin?",
+          a: "Tropomyosin.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the structure that connects the heart muscle cells?",
+          a: "Intercalated discs.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the gap junctions that allow ions to pass between cardiac muscle cells?",
+          a: "Gap junctions.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the desmosomes that hold cardiac muscle cells together?",
+          a: "Desmosomes.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the fascia adherens that anchors actin filaments to the cell membrane?",
+          a: "Fascia adherens.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the T-tubules that allow calcium to enter cardiac muscle cells?",
+          a: "T-tubules.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the sarcoplasmic reticulum that stores calcium in cardiac muscle cells?",
+          a: "Sarcoplasmic reticulum.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the calcium-induced calcium release mechanism in cardiac muscle?",
+          a: "Calcium-induced calcium release.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the protein that regulates calcium release from the sarcoplasmic reticulum?",
+          a: "Ryanodine receptor.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the protein that pumps calcium back into the sarcoplasmic reticulum?",
+          a: "SERCA.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the protein that exchanges calcium for sodium?",
+          a: "Sodium-calcium exchanger.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the protein that pumps calcium out of the cell?",
+          a: "Calcium ATPase.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the protein that pumps sodium out of the cell?",
+          a: "Sodium-potassium ATPase.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the protein that pumps potassium into the cell?",
+          a: "Sodium-potassium ATPase.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the protein that allows sodium to enter the cell?",
+          a: "Sodium channels.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the protein that allows potassium to leave the cell?",
+          a: "Potassium channels.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the protein that allows calcium to enter the cell?",
+          a: "Calcium channels.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the protein that allows chloride to enter the cell?",
+          a: "Chloride channels.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the protein that allows water to enter the cell?",
+          a: "Aquaporins.",
+        },
+
+        // ==================== ANATOMY: EMBRYOLOGY ====================
+        {
+          s: "Anatomy",
+          q: "What is the name of the process that forms the heart tube?",
+          a: "Fusion of the endocardial tubes.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the first heart chamber to form?",
+          a: "The truncus arteriosus.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the second heart chamber to form?",
+          a: "The bulbus cordis.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the third heart chamber to form?",
+          a: "The primitive ventricle.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the fourth heart chamber to form?",
+          a: "The primitive atrium.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the fifth heart chamber to form?",
+          a: "The sinus venosus.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the process that forms the four chambers of the heart?",
+          a: "Cardiac looping.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the process that forms the atria?",
+          a: "Atrial septation.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the process that forms the ventricles?",
+          a: "Ventricular septation.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the process that forms the outflow tracts?",
+          a: "Outflow tract septation.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the process that forms the valves?",
+          a: "Valvulogenesis.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the process that forms the conduction system?",
+          a: "Conduction system development.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the process that forms the coronary arteries?",
+          a: "Coronary artery development.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the process that forms the coronary veins?",
+          a: "Coronary vein development.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the process that forms the lymphatic system?",
+          a: "Lymphatic development.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the process that forms the blood vessels?",
+          a: "Vasculogenesis.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the process that forms new blood vessels from existing ones?",
+          a: "Angiogenesis.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the process that forms blood cells?",
+          a: "Hematopoiesis.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the process that forms the heart?",
+          a: "Cardiogenesis.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the process that forms the circulatory system?",
+          a: "Circulatory system development.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the condition where the ductus arteriosus fails to close?",
+          a: "Patent ductus arteriosus (PDA).",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the condition where the foramen ovale fails to close?",
+          a: "Patent foramen ovale (PFO).",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the condition where the ductus venosus fails to close?",
+          a: "Patent ductus venosus.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the condition where the truncus arteriosus fails to divide?",
+          a: "Persistent truncus arteriosus.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the condition where the bulbus cordis fails to divide?",
+          a: "Transposition of the great arteries.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the condition where the ventricular septum fails to close?",
+          a: "Ventricular septal defect (VSD).",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the condition where the atrial septum fails to close?",
+          a: "Atrial septal defect (ASD).",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the condition where the atrioventricular septum fails to close?",
+          a: "Atrioventricular septal defect (AVSD).",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the condition where the aorticopulmonary septum fails to spiral?",
+          a: "Transposition of the great arteries.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the condition where the aorticopulmonary septum fails to form?",
+          a: "Persistent truncus arteriosus.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the condition where the pulmonary trunk is narrowed?",
+          a: "Pulmonary stenosis.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the condition where the aorta is narrowed?",
+          a: "Coarctation of the aorta.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the condition where the aorta overrides the VSD?",
+          a: "Tetralogy of Fallot.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the name of the condition where the right ventricle is hypertrophied?",
+          a: "Tetralogy of Fallot.",
+        },
+        {
+          s: "Anatomy",
+          q: "What are the four features of Tetralogy of Fallot?",
+          a: "VSD, pulmonary stenosis, overriding aorta, and right ventricular hypertrophy.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the most common congenital heart defect?",
+          a: "Ventricular septal defect (VSD).",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the most common cyanotic congenital heart defect?",
+          a: "Tetralogy of Fallot (ToF).",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the most common congenital heart defect in Down syndrome?",
+          a: "Atrioventricular septal defect (AVSD).",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the most common congenital heart defect in Turner syndrome?",
+          a: "Coarctation of the aorta.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the most common congenital heart defect in Marfan syndrome?",
+          a: "Aortic root dilation.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the most common congenital heart defect in congenital rubella syndrome?",
+          a: "Patent ductus arteriosus (PDA).",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the most common congenital heart defect in fetal alcohol syndrome?",
+          a: "Ventricular septal defect (VSD).",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the most common congenital heart defect in maternal diabetes?",
+          a: "Transposition of the great arteries (TGA).",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the most common congenital heart defect in maternal lupus?",
+          a: "Congenital heart block.",
+        },
+        {
+          s: "Anatomy",
+          q: "What is the most common congenital heart defect in maternal phenylketonuria?",
+          a: "Coarctation of the aorta.",
+        },
+
+        // ==================== PHYSIOLOGY (Part 4) ====================
+        {
+          s: "Physiology",
+          q: "What is the most common cause of right heart failure?",
+          a: "Left heart failure.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of cor pulmonale?",
+          a: "COPD.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of pulmonary hypertension?",
+          a: "Left heart disease.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of pulmonary arterial hypertension?",
+          a: "Idiopathic.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of secondary pulmonary hypertension?",
+          a: "Left heart disease.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of primary pulmonary hypertension?",
+          a: "BMPR2 mutation.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of heart failure with preserved ejection fraction?",
+          a: "Hypertension.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of heart failure with reduced ejection fraction?",
+          a: "Coronary artery disease.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of stable angina?",
+          a: "Atherosclerosis.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of unstable angina?",
+          a: "Plaque rupture.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of variant angina?",
+          a: "Coronary artery spasm.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of silent ischemia?",
+          a: "Diabetes mellitus.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of myocardial infarction?",
+          a: "Atherosclerosis.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of angina?",
+          a: "Atherosclerosis.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of coronary artery disease?",
+          a: "Atherosclerosis.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of atherosclerosis?",
+          a: "Endothelial dysfunction.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of peripheral artery disease?",
+          a: "Atherosclerosis.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of Raynaud's phenomenon?",
+          a: "Idiopathic.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of Buerger's disease?",
+          a: "Smoking.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of Takayasu arteritis?",
+          a: "Unknown.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of giant cell arteritis?",
+          a: "Unknown.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of polyarteritis nodosa?",
+          a: "Hepatitis B virus.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of Kawasaki disease?",
+          a: "Unknown.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of Henoch-Schönlein purpura?",
+          a: "Unknown.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of granulomatosis with polyangiitis?",
+          a: "Unknown.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of microscopic polyangiitis?",
+          a: "Unknown.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of eosinophilic granulomatosis with polyangiitis?",
+          a: "Unknown.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of Behçet's disease?",
+          a: "Unknown.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of thromboangiitis obliterans?",
+          a: "Smoking.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of varicose veins?",
+          a: "Venous valve incompetence.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of lymphedema?",
+          a: "Lymphatic obstruction.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of deep vein thrombosis?",
+          a: "Virchow's triad (stasis, endothelial injury, hypercoagulability).",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of pulmonary embolism?",
+          a: "Deep vein thrombosis (DVT).",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of fat embolism?",
+          a: "Long bone fractures.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of air embolism?",
+          a: "Surgery or trauma.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of amniotic fluid embolism?",
+          a: "Childbirth.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of septic embolism?",
+          a: "Infective endocarditis.",
+        },
+        {
+          s: "Physiology",
+          q: "What is the most common cause of tumor embolism?",
+          a: "Cancer.",
+        },
+
+        // ==================== PATHOLOGY (Part 4) ====================
+        {
+          s: "Pathology",
+          q: "What is the most common cause of aplastic crisis?",
+          a: "Parvovirus B19 infection.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of hemolytic crisis?",
+          a: "G6PD deficiency.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of vaso-occlusive crisis?",
+          a: "Sickle cell anemia.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of splenic sequestration crisis?",
+          a: "Sickle cell anemia.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of acute chest syndrome?",
+          a: "Sickle cell anemia.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of priapism?",
+          a: "Sickle cell anemia.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of stroke in children?",
+          a: "Sickle cell anemia.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of mycotic aneurysm?",
+          a: "Staphylococcus aureus.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of aortitis?",
+          a: "Treponema pallidum (syphilis).",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of pericarditis in developing countries?",
+          a: "Tuberculosis.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of myocarditis in developing countries?",
+          a: "Chagas disease (Trypanosoma cruzi).",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of endocarditis in developing countries?",
+          a: "Rheumatic heart disease.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of rheumatic fever?",
+          a: "Streptococcus pyogenes (Group A Streptococcus).",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of acute rheumatic fever?",
+          a: "Streptococcus pyogenes pharyngitis.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of post-streptococcal glomerulonephritis?",
+          a: "Streptococcus pyogenes.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of scarlet fever?",
+          a: "Streptococcus pyogenes.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of toxic shock syndrome?",
+          a: "Staphylococcus aureus.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of scalded skin syndrome?",
+          a: "Staphylococcus aureus.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of impetigo?",
+          a: "Staphylococcus aureus.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of cellulitis?",
+          a: "Staphylococcus aureus.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of erysipelas?",
+          a: "Streptococcus pyogenes.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of necrotizing fasciitis?",
+          a: "Streptococcus pyogenes.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of bacteremia?",
+          a: "Staphylococcus aureus.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of sepsis?",
+          a: "Staphylococcus aureus.",
+        },
+        {
+          s: "Pathology",
+          q: "What is the most common cause of septic shock?",
+          a: "Staphylococcus aureus.",
+        },
+
+        // ==================== PHARMACOLOGY (Part 4) ====================
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Aspirin?",
+          a: "Irreversibly inhibits cyclooxygenase (COX).",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Clopidogrel?",
+          a: "Irreversibly inhibits P2Y12 ADP receptor on platelets.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Heparin?",
+          a: "Potentiates antithrombin III.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Warfarin?",
+          a: "Inhibits vitamin K epoxide reductase.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Streptokinase?",
+          a: "It activates plasminogen to plasmin, causing fibrinolysis.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Alteplase (tPA)?",
+          a: "It activates plasminogen to plasmin, causing fibrinolysis.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Abciximab?",
+          a: "Glycoprotein IIb/IIIa inhibitor.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Dipyridamole?",
+          a: "Inhibits phosphodiesterase, increasing cAMP.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Cilostazol?",
+          a: "Inhibits phosphodiesterase III, increasing cAMP.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Nitroglycerin?",
+          a: "It releases nitric oxide, causing venodilation.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Isosorbide dinitrate?",
+          a: "It releases nitric oxide, causing venodilation.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Isosorbide mononitrate?",
+          a: "It releases nitric oxide, causing venodilation.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Metoprolol?",
+          a: "Beta-1 selective blocker.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Propranolol?",
+          a: "Non-selective beta blocker.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Atenolol?",
+          a: "Beta-1 selective blocker.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Carvedilol?",
+          a: "Alpha-1 and beta blocker.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Labetalol?",
+          a: "Alpha-1 and beta blocker.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Prazosin?",
+          a: "Alpha-1 blocker.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Doxazosin?",
+          a: "Alpha-1 blocker.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Terazosin?",
+          a: "Alpha-1 blocker.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Clonidine?",
+          a: "Central alpha-2 agonist.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Methyldopa?",
+          a: "Central alpha-2 agonist.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Hydralazine?",
+          a: "Potassium channel opener (vasodilator).",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Minoxidil?",
+          a: "Potassium channel opener (vasodilator).",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Sodium Nitroprusside?",
+          a: "Donor of nitric oxide (NO).",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Fenoldopam?",
+          a: "Dopamine-1 agonist.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Enalapril?",
+          a: "ACE inhibitor.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Lisinopril?",
+          a: "ACE inhibitor.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Captopril?",
+          a: "ACE inhibitor.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Losartan?",
+          a: "Angiotensin receptor blocker (ARB).",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Valsartan?",
+          a: "Angiotensin receptor blocker (ARB).",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Aliskiren?",
+          a: "Direct renin inhibitor.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Spironolactone?",
+          a: "Aldosterone antagonist.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Eplerenone?",
+          a: "Aldosterone antagonist.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Furosemide?",
+          a: "Loop diuretic (inhibits Na+/K+/2Cl- cotransporter).",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Bumetanide?",
+          a: "Loop diuretic.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Torsemide?",
+          a: "Loop diuretic.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Hydrochlorothiazide?",
+          a: "Thiazide diuretic (inhibits Na+/Cl- cotransporter).",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Chlorthalidone?",
+          a: "Thiazide diuretic.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Amiloride?",
+          a: "Potassium-sparing diuretic.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Triamterene?",
+          a: "Potassium-sparing diuretic.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Acetazolamide?",
+          a: "Carbonic anhydrase inhibitor.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Mannitol?",
+          a: "Osmotic diuretic.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Digoxin?",
+          a: "Inhibits Na+/K+ ATPase, increasing intracellular calcium.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Milrinone?",
+          a: "Phosphodiesterase inhibitor.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Dobutamine?",
+          a: "Selective beta-1 agonist.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Dopamine?",
+          a: "Dopamine agonist.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Norepinephrine?",
+          a: "Alpha and beta agonist.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Epinephrine?",
+          a: "Alpha and beta agonist.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Phenylephrine?",
+          a: "Alpha-1 agonist.",
+        },
+        {
+          s: "Pharmacology",
+          q: "What is the mechanism of action of Isoproterenol?",
+          a: "Beta agonist.",
+        },
+
+        // ==================== MICROBIOLOGY (Part 4) ====================
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of infective endocarditis in patients with a history of dental procedures?",
+          a: "Viridans streptococci.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of infective endocarditis in patients with a history of GI or GU procedures?",
+          a: "Enterococcus.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of infective endocarditis in patients with a history of IV drug use?",
+          a: "Staphylococcus aureus.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of infective endocarditis in patients with a history of prosthetic valve surgery?",
+          a: "Staphylococcus epidermidis.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of infective endocarditis in patients with a history of rheumatic heart disease?",
+          a: "Viridans streptococci.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of infective endocarditis in patients with a history of congenital heart disease?",
+          a: "Viridans streptococci.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the most common cause of infective endocarditis in patients with a history of mitral valve prolapse?",
+          a: "Viridans streptococci.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the treatment for Q fever endocarditis?",
+          a: "Doxycycline and hydroxychloroquine.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the treatment for infective endocarditis caused by Viridans streptococci?",
+          a: "Penicillin G (with or without gentamicin).",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the treatment for infective endocarditis caused by Staphylococcus aureus?",
+          a: "Vancomycin (if MRSA) or nafcillin/oxacillin (if MSSA).",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the treatment for infective endocarditis caused by Enterococcus?",
+          a: "Ampicillin + gentamicin (or vancomycin + gentamicin).",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the treatment for infective endocarditis caused by HACEK organisms?",
+          a: "Ceftriaxone.",
+        },
+        {
+          s: "Microbiology",
+          q: "What is the treatment for culture-negative endocarditis?",
+          a: "Ampicillin + gentamicin (or vancomycin + gentamicin).",
+        },
+
+        // ==================== BIOCHEMISTRY (Part 4) ====================
+        {
+          s: "Biochemistry",
+          q: "What is the most common cause of hypercholesterolemia?",
+          a: "Diet high in saturated fats.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the most common cause of hypertriglyceridemia?",
+          a: "Obesity and insulin resistance.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the most common cause of low HDL?",
+          a: "Smoking and obesity.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the most common cause of high LDL?",
+          a: "Diet high in saturated fats.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the most common cause of high VLDL?",
+          a: "Insulin resistance.",
+        },
+        {
+          s: "Biochemistry",
+          q: "What is the most common cause of high chylomicrons?",
+          a: "Lipoprotein lipase deficiency.",
+        },
+      ];
+
+      // ============================================================
+      // STATE
+      // ============================================================
+      let currentIndex = 0;
+      let isFlipped = false;
+
+      const flashcardEl = document.getElementById("flashcard");
+      const questionEl = document.getElementById("questionText");
+      const answerEl = document.getElementById("answerText");
+      const counterEl = document.getElementById("counter");
+      const prevBtn = document.getElementById("prevBtn");
+      const nextBtn = document.getElementById("nextBtn");
+      const subjectFront = document.getElementById("subjectFront");
+      const subjectBack = document.getElementById("subjectBack");
+      const qNavGrid = document.getElementById("qNavGrid");
+      const navCount = document.getElementById("navCount");
+
+      function getSubjectClass(subject) {
+        const map = {
+          Anatomy: "subject-anatomy",
+          Physiology: "subject-physiology",
+          Pathology: "subject-pathology",
+          Pharmacology: "subject-pharmacology",
+          Microbiology: "subject-microbiology",
+          Biochemistry: "subject-biochemistry",
+        };
+        return map[subject] || "subject-anatomy";
+      }
+
+      // ===== QUESTION NAVIGATOR GRID =====
+      function buildQNav() {
+        qNavGrid.innerHTML = "";
+        navCount.textContent = flashcards.length;
+        flashcards.forEach((card, i) => {
+          const btn = document.createElement("button");
+          btn.className = "q-nav-btn";
+          btn.textContent = i + 1;
+          btn.title = card.s + ": " + card.q.substring(0, 60) + "...";
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            jumpTo(i);
+          });
+          qNavGrid.appendChild(btn);
+        });
+      }
+
+      function updateQNavHighlight() {
+        const buttons = qNavGrid.querySelectorAll(".q-nav-btn");
+        buttons.forEach((btn, i) => {
+          if (i === currentIndex) btn.classList.add("current");
+          else btn.classList.remove("current");
+        });
+      }
+
+      function jumpTo(index) {
+        if (index < 0 || index >= flashcards.length) return;
+        currentIndex = index;
         updateCard();
-    </script>
+        const activeBtn = qNavGrid.querySelectorAll(".q-nav-btn")[index];
+        if (activeBtn)
+          activeBtn.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
 
-</body>
+      // ============================================================
+      // CARD LOGIC
+      // ============================================================
+      function updateCard() {
+        const card = flashcards[currentIndex];
+        if (!card) return;
+
+        flashcardEl.classList.remove("is-flipped");
+        isFlipped = false;
+
+        const subjectClass = getSubjectClass(card.s);
+        subjectFront.textContent = card.s;
+        subjectFront.className = "subject-badge " + subjectClass;
+        subjectBack.textContent = card.s;
+        subjectBack.className = "subject-badge " + subjectClass;
+
+        questionEl.textContent = card.q;
+        answerEl.textContent = card.a;
+
+        counterEl.textContent = `${currentIndex + 1} / ${flashcards.length}`;
+
+        prevBtn.disabled = currentIndex === 0;
+        nextBtn.disabled = currentIndex === flashcards.length - 1;
+
+        updateQNavHighlight();
+      }
+
+      function flipCard() {
+        flashcardEl.classList.toggle("is-flipped");
+        isFlipped = !isFlipped;
+      }
+
+      function nextCard() {
+        if (currentIndex < flashcards.length - 1) {
+          currentIndex++;
+          updateCard();
+        }
+      }
+
+      function prevCard() {
+        if (currentIndex > 0) {
+          currentIndex--;
+          updateCard();
+        }
+      }
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "ArrowRight") nextCard();
+        if (e.key === "ArrowLeft") prevCard();
+        if (e.key === " ") {
+          e.preventDefault();
+          flipCard();
+        }
+      });
+
+      // ============================================================
+      // BOOT
+      // ============================================================
+      buildQNav();
+      updateCard();
+    </script>
+  </body>
 </html>

@@ -11838,16 +11838,18 @@
                         : ""
                     }
                   </div>
-                  <!-- New Flashcards Card -->
-<a href="flashcards.html" style="text-decoration: none; color: inherit;">
-    <div class="card">
-        <div class="icon">🃏</div> <!-- You can replace this emoji -->
-        <div class="content">
-            <h3>Flashcards</h3>
-            <p>Study key concepts</p>
+                  <!-- Flashcards Card (Fixed to match UI) -->
+<div class="list" style="margin-bottom:16px;">
+    <button class="course-card" onclick="window.location.href='flashcards.html'" 
+            style="--course-color:#e91e63;--course-color-2:#7c4dff;">
+        <div class="course-thumb" style="background:rgba(233,30,99,0.12);border-color:rgba(233,30,99,0.3);">🃏</div>
+        <div class="course-body">
+            <div class="course-title">Flashcards</div>
+            <div class="course-meta">Study key concepts · Q&A format</div>
         </div>
-    </div>
-</a>
+        <svg class="course-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+</div>
 
                   <div class="section-title">
                     CVS COURSES
