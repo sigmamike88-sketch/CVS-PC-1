@@ -1,0 +1,2013 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Special Notes — CVS</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📝</text></svg>"
+    />
+    <style>
+      :root {
+        --bg: #0a0e14;
+        --bg-2: #10151d;
+        --bg-3: #171d28;
+        --card: #121821;
+        --card-hover: #1a2130;
+        --border: #1f2836;
+        --border-2: #2b3648;
+        --text: #e6edf3;
+        --text-dim: #8b949e;
+        --text-faint: #586069;
+        --accent: #f59e0b;
+        --accent-2: #ef4444;
+        --radius: 16px;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        -webkit-tap-highlight-color: transparent;
+      }
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.5;
+        padding-bottom: 40px;
+        overscroll-behavior-y: none;
+      }
+      button {
+        font-family: inherit;
+        cursor: pointer;
+        border: none;
+        background: none;
+        color: inherit;
+        font-size: inherit;
+      }
+
+      #app {
+        max-width: 680px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* ========== TOP BAR ========== */
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 18px 10px;
+        position: fixed;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        max-width: 680px;
+        z-index: 1000;
+        background: linear-gradient(180deg, var(--bg) 75%, transparent);
+        backdrop-filter: blur(10px);
+      }
+      .logo-wrap {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+      }
+      .icon-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: var(--bg-3);
+        border: 1px solid var(--border);
+        display: grid;
+        place-items: center;
+        transition: all 0.2s;
+        margin-right: 4px;
+        text-decoration: none;
+        color: var(--text);
+      }
+      .icon-btn:hover {
+        background: var(--card-hover);
+        border-color: var(--border-2);
+      }
+      .logo-badge {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        display: grid;
+        place-items: center;
+        font-size: 18px;
+        box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+      }
+      .logo-text {
+        font-size: 19px;
+        font-weight: 800;
+        letter-spacing: -0.3px;
+      }
+      .logo-sub {
+        font-size: 11px;
+        color: var(--text-dim);
+        font-weight: 500;
+      }
+      .avatar {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: var(--bg-3);
+        border: 1px solid var(--border-2);
+        display: grid;
+        place-items: center;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-dim);
+      }
+
+      /* ========== HERO ========== */
+      .hero {
+        margin: 10px 18px 20px;
+        padding: 22px 20px;
+        border-radius: 18px;
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.12));
+        border: 1px solid var(--border);
+        position: relative;
+        overflow: hidden;
+      }
+      .hero::before {
+        content: "";
+        position: absolute;
+        top: -40px;
+        right: -40px;
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(239, 68, 68, 0.25),
+          transparent 70%
+        );
+        pointer-events: none;
+      }
+      .hero-title {
+        font-size: 20px;
+        font-weight: 800;
+        margin-bottom: 6px;
+        letter-spacing: -0.3px;
+      }
+      .hero-sub {
+        font-size: 13px;
+        color: var(--text-dim);
+        line-height: 1.55;
+      }
+
+      /* ========== SECTION TITLE ========== */
+      .section-title {
+        font-size: 11px;
+        font-weight: 800;
+        color: var(--text-faint);
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        padding: 0 18px 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 10px;
+      }
+
+      /* ========== LIST & CARDS ========== */
+      .list {
+        padding: 0 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .course-card {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 16px;
+        text-align: left;
+        width: 100%;
+        transition:
+          transform 0.15s,
+          border-color 0.2s,
+          background 0.2s;
+        position: relative;
+        overflow: hidden;
+      }
+      .course-card::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: var(--course-color, var(--accent));
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+      .course-card:hover::before {
+        opacity: 1;
+      }
+      .course-card:hover {
+        background: var(--card-hover);
+        border-color: var(--border-2);
+      }
+      .course-card:active {
+        transform: scale(0.985);
+      }
+
+      .course-thumb {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+        font-size: 24px;
+      }
+      .course-body {
+        flex: 1;
+        min-width: 0;
+      }
+      .course-title {
+        font-size: 16px;
+        font-weight: 800;
+        margin-bottom: 4px;
+        letter-spacing: -0.2px;
+      }
+      .course-meta {
+        font-size: 12px;
+        color: var(--text-dim);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .course-arrow {
+        color: var(--text-faint);
+        flex-shrink: 0;
+        transition: transform 0.25s;
+      }
+
+      /* ========== EXPANDABLE (ANATOMY) ========== */
+      .expand-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+      .expand-toggle .course-arrow.chevron {
+        transform: rotate(0deg);
+      }
+      .expand-group.open .expand-toggle .course-arrow.chevron {
+        transform: rotate(90deg);
+      }
+      .expand-group.open .expand-toggle {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        border-bottom-color: transparent;
+        background: var(--card-hover);
+      }
+      .sub-list {
+        display: none;
+        flex-direction: column;
+        gap: 0;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-top: none;
+        border-bottom-left-radius: var(--radius);
+        border-bottom-right-radius: var(--radius);
+        overflow: hidden;
+      }
+      .expand-group.open .sub-list {
+        display: flex;
+      }
+      .sub-card {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 16px 14px 22px;
+        text-align: left;
+        width: 100%;
+        border-top: 1px solid var(--border);
+        transition: background 0.2s;
+        position: relative;
+      }
+      .sub-card::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: var(--course-color, var(--accent));
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+      .sub-card:hover {
+        background: var(--card-hover);
+      }
+      .sub-card:hover::before {
+        opacity: 1;
+      }
+      .sub-thumb {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+        font-size: 18px;
+      }
+      .sub-title {
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: -0.1px;
+      }
+      .sub-meta {
+        font-size: 11px;
+        color: var(--text-dim);
+        margin-top: 1px;
+      }
+      .sub-arrow {
+        color: var(--text-faint);
+        flex-shrink: 0;
+      }
+      /* ========== BOOKMARKS / PINS ========== */
+      .pin-btn {
+        background: transparent;
+        border: none;
+        color: rgba(255, 255, 255, 0.4);
+        cursor: pointer;
+        font-size: 14px;
+        margin-left: 10px;
+        transition:
+          transform 0.2s,
+          color 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4px;
+        border-radius: 4px;
+      }
+      .pin-btn:hover {
+        color: white;
+        background: rgba(255, 255, 255, 0.1);
+      }
+      .pin-btn.pinned {
+        color: #f59e0b; /* Yellowish Gold */
+        transform: scale(1.15);
+      }
+      .pinned-nav-box {
+        margin: 0 0 20px;
+        background: rgba(245, 158, 11, 0.1);
+        border: 1px solid rgba(245, 158, 11, 0.3);
+        border-radius: 12px;
+        padding: 12px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .pinned-nav-title {
+        font-size: 12px;
+        font-weight: 800;
+        color: #f59e0b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 4px;
+      }
+      .pinned-link {
+        color: #e6edf3;
+        text-decoration: none;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 0;
+      }
+      .pinned-link:hover {
+        text-decoration: underline;
+        color: #fff;
+      }
+      /* Fixes the jumpy scrolling so headers don't hide under the topbar */
+      [id] {
+        scroll-margin-top: 85px;
+      }
+
+      /* ========== PASTE ZONE HELPERS ========== */
+      .paste-zone {
+        display: none;
+        padding: 0 18px;
+        margin-bottom: 40px;
+      }
+      .paste-zone .inner {
+        max-width: 600px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 32px;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="app"
+      style="
+        max-width: 680px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        padding-top: 80px;
+      "
+    >
+      <header class="topbar">
+        <div class="logo-wrap">
+          <a href="index.html" class="icon-btn" title="Back to Home">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+            >
+              <path d="M19 12H5M12 19l-7-7 7-7" />
+            </svg>
+          </a>
+          <div class="logo-badge">📝</div>
+          <div>
+            <div class="logo-text">Special Notes</div>
+            <div class="logo-sub">High-yield summaries & mnemonics</div>
+          </div>
+        </div>
+        <div class="avatar">CVS</div>
+      </header>
+
+      <div class="hero">
+        <div class="hero-title">Welcome to Special Notes 🚀</div>
+        <div class="hero-sub">
+          Your curated collection of high-yield facts, mnemonics, and quick
+          revision materials for the CVS module.
+        </div>
+      </div>
+
+      <div class="section-title">
+        Subjects
+        <span>Tap to explore</span>
+      </div>
+
+      <div class="list">
+        <!-- ===== ANATOMY (expandable) ===== -->
+        <div class="expand-group" id="anatomyGroup">
+          <button
+            class="course-card expand-toggle"
+            onclick="toggleGroup('anatomyGroup')"
+            style="--course-color: #f59e0b"
+          >
+            <div
+              class="course-thumb"
+              style="
+                background: rgba(245, 158, 11, 0.12);
+                border: 1px solid rgba(245, 158, 11, 0.3);
+              "
+            >
+              🫀
+            </div>
+            <div class="course-body">
+              <div class="course-title">Anatomy</div>
+              <div class="course-meta">Gross · Histo · Embryo</div>
+            </div>
+            <svg
+              class="course-arrow chevron"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+            >
+              <path d="M9 18l6-6-6-6" />
+            </svg>
+          </button>
+
+          <div class="sub-list">
+            <button
+              class="sub-card"
+              onclick="showNote('noteAnatomy')"
+              style="--course-color: #f59e0b"
+            >
+              <div
+                class="sub-thumb"
+                style="
+                  background: rgba(245, 158, 11, 0.12);
+                  border: 1px solid rgba(245, 158, 11, 0.3);
+                "
+              >
+                🧍
+              </div>
+              <div class="course-body">
+                <div class="sub-title">Gross Anatomy</div>
+                <div class="sub-meta">Heart, vessels & mediastinum</div>
+              </div>
+              <svg
+                class="sub-arrow"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.2"
+              >
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </button>
+
+            <button
+              class="sub-card"
+              onclick="showNote('noteHisto')"
+              style="--course-color: #f59e0b"
+            >
+              <div
+                class="sub-thumb"
+                style="
+                  background: rgba(245, 158, 11, 0.12);
+                  border: 1px solid rgba(245, 158, 11, 0.3);
+                "
+              >
+                🔬
+              </div>
+              <div class="course-body">
+                <div class="sub-title">Histology</div>
+                <div class="sub-meta">Cardiac & vascular tissues</div>
+              </div>
+              <svg
+                class="sub-arrow"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.2"
+              >
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </button>
+
+            <button
+              class="sub-card"
+              onclick="showNote('noteEmbryo')"
+              style="--course-color: #f59e0b"
+            >
+              <div
+                class="sub-thumb"
+                style="
+                  background: rgba(245, 158, 11, 0.12);
+                  border: 1px solid rgba(245, 158, 11, 0.3);
+                "
+              >
+                🥚
+              </div>
+              <div class="course-body">
+                <div class="sub-title">Embryology</div>
+                <div class="sub-meta">Heart development basics</div>
+              </div>
+              <svg
+                class="sub-arrow"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.2"
+              >
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- ===== PHYSIOLOGY ===== -->
+        <button
+          class="course-card"
+          onclick="showNote('notePhysio')"
+          style="--course-color: #ef4444"
+        >
+          <div
+            class="course-thumb"
+            style="
+              background: rgba(239, 68, 68, 0.12);
+              border: 1px solid rgba(239, 68, 68, 0.3);
+            "
+          >
+            💓
+          </div>
+          <div class="course-body">
+            <div class="course-title">Physiology</div>
+            <div class="course-meta">Cardiac cycle & hemodynamics</div>
+          </div>
+          <svg
+            class="course-arrow"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.2"
+          >
+            <path d="M9 18l6-6-6-6" />
+          </svg>
+        </button>
+
+        <!-- ===== PATHOLOGY ===== -->
+        <button
+          class="course-card"
+          onclick="showNote('notePatho')"
+          style="--course-color: #a855f7"
+        >
+          <div
+            class="course-thumb"
+            style="
+              background: rgba(168, 85, 247, 0.12);
+              border: 1px solid rgba(168, 85, 247, 0.3);
+            "
+          >
+            🧫
+          </div>
+          <div class="course-body">
+            <div class="course-title">Pathology</div>
+            <div class="course-meta">CVS disease mechanisms</div>
+          </div>
+          <svg
+            class="course-arrow"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.2"
+          >
+            <path d="M9 18l6-6-6-6" />
+          </svg>
+        </button>
+
+        <!-- ===== PHARMACOLOGY ===== -->
+        <button
+          class="course-card"
+          onclick="showNote('notePharm')"
+          style="--course-color: #22c55e"
+        >
+          <div
+            class="course-thumb"
+            style="
+              background: rgba(34, 197, 94, 0.12);
+              border: 1px solid rgba(34, 197, 94, 0.3);
+            "
+          >
+            💊
+          </div>
+          <div class="course-body">
+            <div class="course-title">Pharmacology</div>
+            <div class="course-meta">CVS drugs & mechanisms</div>
+          </div>
+          <svg
+            class="course-arrow"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.2"
+          >
+            <path d="M9 18l6-6-6-6" />
+          </svg>
+        </button>
+
+        <!-- ===== BIOCHEMISTRY ===== -->
+        <button
+          class="course-card"
+          onclick="showNote('noteBiochem')"
+          style="--course-color: #3b82f6"
+        >
+          <div
+            class="course-thumb"
+            style="
+              background: rgba(59, 130, 246, 0.12);
+              border: 1px solid rgba(59, 130, 246, 0.3);
+            "
+          >
+            🧪
+          </div>
+          <div class="course-body">
+            <div class="course-title">Biochemistry</div>
+            <div class="course-meta">Cardiac markers & lipoproteins</div>
+          </div>
+          <svg
+            class="course-arrow"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.2"
+          >
+            <path d="M9 18l6-6-6-6" />
+          </svg>
+        </button>
+
+        <!-- ===== MICROBIOLOGY ===== -->
+        <button
+          class="course-card"
+          onclick="showNote('noteMicro')"
+          style="--course-color: #14b8a6"
+        >
+          <div
+            class="course-thumb"
+            style="
+              background: rgba(20, 184, 166, 0.12);
+              border: 1px solid rgba(20, 184, 166, 0.3);
+            "
+          >
+            🦠
+          </div>
+          <div class="course-body">
+            <div class="course-title">Microbiology</div>
+            <div class="course-meta">Endocarditis & myocarditis</div>
+          </div>
+          <svg
+            class="course-arrow"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.2"
+          >
+            <path d="M9 18l6-6-6-6" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- 📥 ANATOMY NOTES — PASTE BELOW THIS LINE                          -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <div id="noteAnatomy" class="paste-zone">
+      <div class="inner">
+        <!-- Welcome -->
+        <div>
+          <div
+            style="
+              font-size: 18px;
+              font-weight: 800;
+              margin-bottom: 16px;
+              display: flex;
+              align-items: center;
+              gap: 8px;
+            "
+          >
+            <span>🫀</span> ANATOMY
+          </div>
+          <div
+            style="
+              background: #0f6a99;
+              color: white;
+              padding: 10px 14px;
+              border-radius: 8px;
+              font-size: 14px;
+              font-weight: 600;
+              margin-bottom: 18px;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            "
+          >
+            <span>🩺 Welcome to Anatomy</span>
+          </div>
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              gap: 12px;
+              font-size: 14.5px;
+              line-height: 1.6;
+            "
+          >
+            <div style="display: flex; gap: 8px; align-items: flex-start">
+              <span style="font-size: 16px">📌</span>
+              <div>
+                Paste your CVS Anatomy notes here. Use the same block format as
+                the MSK file: blue section headers, 🔻 bullets, ✔️ summary
+                lines, tables, and callout boxes.
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- 📥 YOUR ANATOMY CONTENT GOES HERE (BELOW THIS COMMENT)         -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- 📥 END OF ANATOMY CONTENT                                      -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+      </div>
+    </div>
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- 📥 END OF ANATOMY NOTES                                           -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- 📥 HISTOLOGY NOTES — PASTE BELOW THIS LINE                        -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <div id="noteHisto" class="paste-zone">
+      <div class="inner">
+        <!-- Welcome -->
+        <div>
+          <div
+            style="
+              font-size: 18px;
+              font-weight: 800;
+              margin-bottom: 16px;
+              display: flex;
+              align-items: center;
+              gap: 8px;
+            "
+          >
+            <span>🔬</span> HISTOLOGY
+          </div>
+          <div
+            style="
+              background: #0f6a99;
+              color: white;
+              padding: 10px 14px;
+              border-radius: 8px;
+              font-size: 14px;
+              font-weight: 600;
+              margin-bottom: 18px;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            "
+          >
+            <span>🧬 Welcome to Histology</span>
+          </div>
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              gap: 12px;
+              font-size: 14.5px;
+              line-height: 1.6;
+            "
+          >
+            <div style="display: flex; gap: 8px; align-items: flex-start">
+              <span style="font-size: 16px">📌</span>
+              <div>
+                Paste your CVS Histology notes here. Use the same block format
+                as the MSK file: blue section headers, 🔻 bullets, ✔️ summary
+                lines, tables, and callout boxes.
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- 📥 YOUR HISTOLOGY CONTENT GOES HERE (BELOW THIS COMMENT)       -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+                 <!-- ========================================== -->
+        <!-- SECTION 1: Histology of Circulatory System -->
+        <!-- ========================================== -->
+        <div>
+          <div style="font-size: 18px; font-weight: 800; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+            <span>🩸</span> Histology of Circulatory System
+          </div>
+
+          <!-- General Structure of Blood Vessels -->
+          <div style="background: #0f6a99; color: white; padding: 10px 14px; border-radius: 8px; font-size: 14px; font-weight: 600; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center;">
+            <span>🔹 General Structure of Blood Vessels 🩸</span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 12px; font-size: 14.5px; line-height: 1.6; padding-left: 4px;">
+            <div style="font-weight: 600; margin-bottom: 4px;">
+              Most blood vessels have 3 tunics (layers):
+            </div>
+
+            <!-- 1. Tunica Intima -->
+            <div style="font-weight: 800; margin-top: 8px;">1. Tunica Intima (Interna)</div>
+            <div style="display: flex; gap: 8px; align-items: flex-start;">
+              <span style="color: #ff5c5c; font-size: 14px; margin-top: 2px;">🔻</span>
+              <div>Innermost layer facing lumen.</div>
+            </div>
+            <div style="margin-top: 4px;">Made of:</div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 20px;">
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Simple squamous epithelium (endothelium)</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Basement membrane</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Subendothelial loose connective tissue</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Internal elastic lamina (mainly arteries)</div>
+            </div>
+
+            <!-- 2. Tunica Media -->
+            <div style="font-weight: 800; margin-top: 12px;">2. Tunica Media</div>
+            <div style="display: flex; gap: 8px; align-items: flex-start;">
+              <span style="color: #ff5c5c; font-size: 14px; margin-top: 2px;">🔻</span>
+              <div>Middle layer.</div>
+            </div>
+            <div style="margin-top: 4px;">Contains:</div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 20px;">
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Smooth muscle cells</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Elastic fibers</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Reticular fibers</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">🚨</span> Controls vessel diameter and blood pressure.</div>
+            </div>
+
+            <!-- 3. Tunica Adventitia -->
+            <div style="font-weight: 800; margin-top: 12px;">3. Tunica Adventitia (Externa)</div>
+            <div style="display: flex; gap: 8px; align-items: flex-start;">
+              <span style="color: #ff5c5c; font-size: 14px; margin-top: 2px;">🔻</span>
+              <div>Outer connective tissue layer.</div>
+            </div>
+            <div style="margin-top: 4px;">Contains:</div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 20px;">
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Collagen fibers</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Elastic fibers</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Nerves</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Vasa vasorum (in large vessels)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- SECTION 2: Histology of Heart              -->
+        <!-- ========================================== -->
+        <div style="margin-top: 32px;">
+          <div style="font-size: 18px; font-weight: 800; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+            <span>🫀</span> Histology of Heart
+          </div>
+
+          <!-- The Heart Wall -->
+          <div style="background: #0f6a99; color: white; padding: 10px 14px; border-radius: 8px; font-size: 14px; font-weight: 600; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center;">
+            <span>🔹 The Heart Wall</span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 12px; font-size: 14.5px; line-height: 1.6; padding-left: 4px;">
+            <div style="font-weight: 600; margin-bottom: 4px;">
+              The heart wall has 3 layers:
+            </div>
+
+            <!-- 1. Endocardium -->
+            <div style="font-weight: 800; margin-top: 8px; display: flex; align-items: center; gap: 6px;">
+              <span style="background: #586069; color: white; border-radius: 4px; padding: 2px 8px; font-size: 12px;">1</span> Endocardium
+            </div>
+            <div style="display: flex; gap: 8px; align-items: flex-start;">
+              <span style="color: #ff5c5c; font-size: 14px; margin-top: 2px;">🔻</span>
+              <div>Equivalent to vascular tunica intima.</div>
+            </div>
+            <div style="margin-top: 4px;">Structure:</div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 20px;">
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Simple squamous endothelial cells</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Thin connective tissue layer</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Elastic + collagen fibers</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Some smooth muscle cells</div>
+            </div>
+            <div style="margin-top: 8px; font-weight: 600;">Subendocardial layer contains:</div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 20px;">
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Blood vessels</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Nerves</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Purkinje fibers</div>
+            </div>
+
+            <!-- 2. Myocardium -->
+            <div style="font-weight: 800; margin-top: 16px; display: flex; align-items: center; gap: 6px;">
+              <span style="background: #586069; color: white; border-radius: 4px; padding: 2px 8px; font-size: 12px;">2</span> Myocardium
+            </div>
+            <div style="display: flex; gap: 8px; align-items: flex-start;">
+              <span style="color: #ff5c5c; font-size: 14px; margin-top: 2px;">🔻</span>
+              <div>Thickest layer of heart wall.</div>
+            </div>
+                        <!-- Continued: Myocardium -->
+            <div style="display: flex; gap: 8px; align-items: flex-start;">
+              <span style="color: #ff5c5c; font-size: 14px; margin-top: 2px;">🔻</span>
+              <div>Contains: Cardiac muscle cells, Conducting system cells.</div>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: flex-start;">
+              <span style="color: #ff5c5c; font-size: 14px; margin-top: 2px;">🔻</span>
+              <div><strong>Thickness:</strong> Ventricles &gt; atria. Left ventricle is thickest because it pumps systemic circulation.</div>
+            </div>
+
+            <!-- Purkinje Fibers -->
+            <div style="font-weight: 800; margin-top: 12px; display: flex; align-items: center; gap: 6px;">
+              <span>🔻</span> Purkinje Fibers ⚡
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 20px;">
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Specialized cardiac muscle cells.</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Located in subendocardial region.</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Conduct electrical impulses through the heart.</div>
+            </div>
+
+            <!-- 3. Epicardium -->
+            <div style="font-weight: 800; margin-top: 16px; display: flex; align-items: center; gap: 6px;">
+              <span style="background: #586069; color: white; border-radius: 4px; padding: 2px 8px; font-size: 12px;">3</span> Epicardium
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 4px;">
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="color: #ff5c5c; font-size: 14px;">🔻</span> Outer layer of heart.</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="color: #ff5c5c; font-size: 14px;">🔻</span> Equivalent to visceral layer of serous pericardium.</div>
+            </div>
+
+            <div style="margin-top: 8px; font-weight: 600;">Covered by:</div>
+            <div style="display: flex; gap: 8px; align-items: center; padding-left: 20px;">
+              <span style="font-size: 16px;">✔️</span> Mesothelium (simple squamous epithelium)
+            </div>
+
+            <div style="margin-top: 8px; font-weight: 600;">Contains:</div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 20px;">
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Loose connective tissue</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Fat cells</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Coronary vessels</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Nerves</div>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: flex-start; margin-top: 4px; padding-left: 20px;">
+              <span style="color: #ef4444; font-size: 16px;">💥</span>
+              <div><strong>Function:</strong><br>Produces lubricating fluid → reduces friction during heart movement.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- SECTION 3: Cardiac Valves & Arteries       -->
+        <!-- ========================================== -->
+        <div style="margin-top: 32px;">
+          <!-- Cardiac Valves -->
+          <div style="background: #0f6a99; color: white; padding: 10px 14px; border-radius: 8px; font-size: 14px; font-weight: 600; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center;">
+            <span>🔹 Cardiac Valves</span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 12px; font-size: 14.5px; line-height: 1.6; padding-left: 4px;">
+            <div style="font-weight: 600; margin-bottom: 4px;">Mainly composed of:</div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 20px;">
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Dense connective tissue</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Covered by endothelium</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Connected to fibrous skeleton of heart.</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Chordae tendineae anchor valve leaflets.</div>
+            </div>
+          </div>
+
+          <!-- Arteries -->
+          <div style="background: #0f6a99; color: white; padding: 10px 14px; border-radius: 8px; font-size: 14px; font-weight: 600; margin-top: 24px; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center;">
+            <span>🔹 Arteries</span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 12px; font-size: 14.5px; line-height: 1.6; padding-left: 4px;">
+            <div style="font-weight: 600; margin-bottom: 4px;">General Features</div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 20px;">
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Carry blood away from heart</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Thick walls</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Lumen smaller compared with veins.</div>
+            </div>
+            <div style="margin-top: 4px;">Types:</div>
+            <!-- (Note: The screenshot ends here at "Types:" — send the next image to continue) -->
+          </div>
+        </div>
+                <!-- ========================================== -->
+        <!-- SECTION 4: Arteries                        -->
+        <!-- ========================================== -->
+        <div style="margin-top: 32px;">
+          <!-- Main Section Header -->
+          <div style="background: #0f6a99; color: white; padding: 10px 14px; border-radius: 8px; font-size: 14px; font-weight: 600; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center;">
+            <span>🔹 Arteries</span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 12px; font-size: 14.5px; line-height: 1.6;">
+            
+            <div style="font-weight: 600; margin-bottom: 4px;">General Features</div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 20px;">
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Carry blood away from heart</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Thick walls</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Lumen smaller compared with veins.</div>
+            </div>
+
+            <div style="margin-top: 8px;">Types:</div>
+
+            <!-- 1. Elastic Arteries -->
+            <div style="font-weight: 800; margin-top: 12px; display: flex; align-items: center; gap: 6px;">
+              <span style="background: #586069; color: white; border-radius: 4px; padding: 2px 8px; font-size: 12px;">1</span> Elastic Arteries (Conducting Arteries)
+            </div>
+            
+            <div style="margin-top: 4px; font-weight: 600;">Examples:</div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 20px;">
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="color: #ff5c5c; font-size: 14px;">🔻</span> Aorta</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="color: #ff5c5c; font-size: 14px;">🔻</span> Pulmonary artery</div>
+            </div>
+
+            <div style="margin-top: 8px; font-weight: 600;">Features:</div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 20px;">
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="color: #ff5c5c; font-size: 14px;">🔻</span> Largest arteries (&gt;10 mm)</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="color: #ff5c5c; font-size: 14px;">🔻</span> Yellow color due to elastin.</div>
+            </div>
+
+            <div style="margin-top: 8px; font-weight: 600;">Tunica Intima:</div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 20px;">
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">😵</span> Thick</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">😵</span> Endothelium</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">😵</span> Thick subendothelial connective tissue</div>
+            </div>
+
+            <div style="margin-top: 8px; font-weight: 600;">Tunica Media:</div>
+            <div style="margin-top: 4px;">Most important feature:</div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 20px;">
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Many elastic lamellae</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Smooth muscle layers</div>
+            </div>
+
+            <div style="margin-top: 8px; font-weight: 600;">Function:</div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 20px;">
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Stretch during systole</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Recoil during diastole</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Maintains continuous blood flow</div>
+            </div>
+
+            <div style="margin-top: 8px; font-weight: 600;">Adventitia:</div>
+            <div style="margin-top: 4px;">Contains:</div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 20px;">
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Vasa vasorum</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Sympathetic nerves</div>
+            </div>
+
+            <!-- 2. Muscular Arteries -->
+            <div style="font-weight: 800; margin-top: 16px; display: flex; align-items: center; gap: 6px;">
+              <span style="background: #586069; color: white; border-radius: 4px; padding: 2px 8px; font-size: 12px;">2</span> Muscular Arteries (Distributing Arteries)
+            </div>
+
+            <div style="margin-top: 4px; font-weight: 600;">Examples:</div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 20px;">
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Femoral artery</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Brachial artery</div>
+            </div>
+
+            <div style="margin-top: 8px; font-weight: 600;">Function:</div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 20px;">
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Distribute blood to organs.</div>
+            </div>
+
+            <div style="margin-top: 8px; font-weight: 600;">Histology:</div>
+            <div style="margin-top: 4px;">Intima:</div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 20px;">
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Endothelium</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Subendothelial CT</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Prominent internal elastic lamina</div>
+            </div>
+         
+                              <!-- 3. Small Arteries -->
+            <div style="font-weight: 800; margin-top: 16px; display: flex; align-items: center; gap: 6px;">
+              <span style="background: #586069; color: white; border-radius: 4px; padding: 2px 8px; font-size: 12px;">3</span> Small Arteries
+            </div>
+
+            <div style="margin-top: 4px; font-weight: 600;">Diameter:</div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 20px;">
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> 0.1–2 mm</div>
+            </div>
+
+            <div style="margin-top: 8px; font-weight: 600;">Features:</div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 20px;">
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Thin wall</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Narrow lumen</div>
+            </div>
+
+            <div style="margin-top: 8px; font-weight: 600;">Media:</div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 20px;">
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Up to 8 layers smooth muscle</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> No external elastic lamina</div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- SECTION 5: Arterial Sensory Receptors      -->
+        <!-- ========================================== -->
+        <div style="margin-top: 32px;">
+          <div style="background: #0f6a99; color: white; padding: 10px 14px; border-radius: 8px; font-size: 14px; font-weight: 600; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center;">
+            <span>🧠 Arterial Sensory Receptors</span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 12px; font-size: 14.5px; line-height: 1.6;">
+            
+            <!-- Carotid Sinus -->
+            <div style="font-weight: 800; margin-top: 4px; display: flex; align-items: center; gap: 6px;">
+              <span style="color: #f59e0b;">⭐</span> Carotid Sinus
+            </div>
+            
+            <div style="margin-top: 4px; font-weight: 600;">Function:</div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 20px;">
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Detects blood pressure changes.</div>
+            </div>
+
+            <div style="margin-top: 8px; font-weight: 600;">Contains:</div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 20px;">
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Baroreceptors</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">✔️</span> Sensory fibers from CN IX (glossopharyngeal nerve)</div>
+            </div>
+
+            <div style="margin-top: 8px; font-weight: 600;">Response:</div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 20px;">
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">⬆️</span> BP → stretch receptor activation → brain response → vasodilation → <span style="font-size: 16px;">⬇️</span>BP</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;"></div>
+            </div>
+
+            <!-- Glomus Bodies -->
+            <div style="font-weight: 800; margin-top: 16px; display: flex; align-items: center; gap: 6px;">
+              Glomus Bodies
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 4px;">
+              <div style="display: flex; gap: 8px; align-items: flex-start;">
+                <span style="color: #ff5c5c; font-size: 14px; margin-top: 2px;">🔻</span>
+                <div>Chemoreceptors.</div>
+              </div>
+              <div style="display: flex; gap: 8px; align-items: flex-start;">
+                <span style="color: #ff5c5c; font-size: 14px; margin-top: 2px;">🔻</span>
+                <div>Detect blood chemistry:</div>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 24px; margin-top: 2px;">
+                <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 14px;">👉</span> Oxygen</div>
+                <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 14px;">👉</span> Carbon dioxide</div>
+                <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 14px;">👉</span> pH</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+                <!-- ========================================== -->
+        <!-- SECTION 6: Capillaries                     -->
+        <!-- ========================================== -->
+        <div style="margin-top: 32px;">
+          <div style="background: #0f6a99; color: white; padding: 10px 14px; border-radius: 8px; font-size: 14px; font-weight: 600; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center;">
+            <span>🩸 Capillaries</span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 12px; font-size: 14.5px; line-height: 1.6;">
+            
+            <div style="font-weight: 600; margin-bottom: 4px;">General Features</div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 20px;">
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="color: #22c55e; font-size: 16px;">✅</span> Smallest blood vessels</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="color: #22c55e; font-size: 16px;">✅</span> Site of exchange of gases, nutrients &amp; wastes</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="color: #22c55e; font-size: 16px;">✅</span> Wall consists only of endothelium + basement membrane</div>
+            </div>
+
+            <!-- 1. Continuous Capillaries -->
+            <div style="font-weight: 800; margin-top: 12px; display: flex; align-items: center; gap: 6px;">
+              <span style="background: #586069; color: white; border-radius: 4px; padding: 2px 8px; font-size: 12px;">1</span> Continuous Capillaries 🔒
+            </div>
+            
+            <div style="margin-top: 4px; font-weight: 600;">Features:</div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 20px;">
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">👉</span> No pores (fenestrae)</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">👉</span> Continuous basal lamina</div>
+            </div>
+
+            <div style="margin-top: 8px; font-weight: 600;">Found in:</div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 20px;">
+              <div style="display: flex; gap: 8px; align-items: flex-start;"><span style="color: #ff5c5c; font-size: 14px; margin-top: 2px;">🔻</span> Muscle</div>
+              <div style="display: flex; gap: 8px; align-items: flex-start;"><span style="color: #ff5c5c; font-size: 14px; margin-top: 2px;">🔻</span> Connective tissue</div>
+              <div style="display: flex; gap: 8px; align-items: flex-start;"><span style="color: #ff5c5c; font-size: 14px; margin-top: 2px;">🔻</span> CNS</div>
+              <div style="display: flex; gap: 8px; align-items: flex-start;"><span style="color: #ff5c5c; font-size: 14px; margin-top: 2px;">🔻</span> Exocrine glands</div>
+            </div>
+
+            <!-- 2. Fenestrated Capillaries -->
+            <div style="font-weight: 800; margin-top: 16px; display: flex; align-items: center; gap: 6px;">
+              <span style="background: #586069; color: white; border-radius: 4px; padding: 2px 8px; font-size: 12px;">2</span> Fenestrated Capillaries 🪟
+            </div>
+
+            <div style="margin-top: 4px; font-weight: 600;">Features:</div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 20px;">
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">👉</span> Have pores (fenestrae)</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">👉</span> Continuous basal lamina</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">👉</span> Rapid exchange</div>
+            </div>
+
+            <div style="margin-top: 8px; font-weight: 600;">Found in:</div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 20px;">
+              <div style="display: flex; gap: 8px; align-items: flex-start;"><span style="color: #ff5c5c; font-size: 14px; margin-top: 2px;">🔻</span> Kidney</div>
+              <div style="display: flex; gap: 8px; align-items: flex-start;"><span style="color: #ff5c5c; font-size: 14px; margin-top: 2px;">🔻</span> Intestine</div>
+              <div style="display: flex; gap: 8px; align-items: flex-start;"><span style="color: #ff5c5c; font-size: 14px; margin-top: 2px;">🔻</span> Endocrine glands</div>
+              <div style="display: flex; gap: 8px; align-items: flex-start;"><span style="color: #ff5c5c; font-size: 14px; margin-top: 2px;">🔻</span> Pancreas</div>
+            </div>
+
+            <!-- 3. Sinusoidal Capillaries -->
+            <div style="font-weight: 800; margin-top: 16px; display: flex; align-items: center; gap: 6px;">
+              <span style="background: #586069; color: white; border-radius: 4px; padding: 2px 8px; font-size: 12px;">3</span> Sinusoidal Capillaries 🩸
+            </div>
+
+            <div style="margin-top: 4px; font-weight: 600;">Features:</div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 20px;">
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">👉</span> Large irregular lumen</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">👉</span> Large gaps between cells</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">👉</span> Discontinuous basal lamina</div>
+            </div>
+
+            <div style="margin-top: 8px; font-weight: 600;">Found in:</div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 20px;">
+              <div style="display: flex; gap: 8px; align-items: flex-start;"><span style="color: #ff5c5c; font-size: 14px; margin-top: 2px;">🔻</span> Liver</div>
+              <div style="display: flex; gap: 8px; align-items: flex-start;"><span style="color: #ff5c5c; font-size: 14px; margin-top: 2px;">🔻</span> Spleen</div>
+              <div style="display: flex; gap: 8px; align-items: flex-start;"><span style="color: #ff5c5c; font-size: 14px; margin-top: 2px;">🔻</span> Bone marrow</div>
+              <div style="display: flex; gap: 8px; align-items: flex-start;"><span style="color: #ff5c5c; font-size: 14px; margin-top: 2px;">🔻</span> Placenta</div>
+            </div>
+
+          </div>
+        </div>
+                <!-- ========================================== -->
+        <!-- SECTION 7: Veins                           -->
+        <!-- ========================================== -->
+        <div style="margin-top: 32px;">
+          <div style="background: #0f6a99; color: white; padding: 10px 14px; border-radius: 8px; font-size: 14px; font-weight: 600; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center;">
+            <span>🔵 Veins</span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 12px; font-size: 14.5px; line-height: 1.6;">
+            
+            <div style="font-weight: 600; margin-bottom: 4px;">General Features</div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 20px;">
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="color: #22c55e; font-size: 16px;">✅</span> Carry blood toward the heart</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="color: #22c55e; font-size: 16px;">✅</span> Thin walls</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="color: #22c55e; font-size: 16px;">✅</span> Large lumen</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="color: #22c55e; font-size: 16px;">✅</span> Often contain valves</div>
+            </div>
+
+            <div style="margin-top: 8px;">Types of Veins</div>
+
+            <!-- 1. Venules -->
+            <div style="font-weight: 800; margin-top: 12px; display: flex; align-items: center; gap: 6px;">
+              <span style="background: #586069; color: white; border-radius: 4px; padding: 2px 8px; font-size: 12px;">1</span> Venules
+            </div>
+            
+            <div style="display: flex; gap: 8px; align-items: center; padding-left: 20px; margin-top: 4px;">
+              <span style="color: #ff5c5c; font-size: 14px;">📍</span> <span>Smallest veins</span>
+            </div>
+
+            <div style="margin-top: 8px; font-weight: 600;">Functions:</div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 20px;">
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">👉</span> Drain capillaries</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">👉</span> Site of leukocyte migration during inflammation ☢️</div>
+            </div>
+
+            <!-- 2. Small Veins -->
+            <div style="font-weight: 800; margin-top: 16px; display: flex; align-items: center; gap: 6px;">
+              <span style="background: #586069; color: white; border-radius: 4px; padding: 2px 8px; font-size: 12px;">2</span> Small Veins
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 20px; margin-top: 4px;">
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">👉</span> Thin intima</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">👉</span> Well-developed adventitia</div>
+            </div>
+
+            <!-- 3. Medium Veins -->
+            <div style="font-weight: 800; margin-top: 16px; display: flex; align-items: center; gap: 6px;">
+              <span style="background: #586069; color: white; border-radius: 4px; padding: 2px 8px; font-size: 12px;">3</span> Medium Veins
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center; padding-left: 20px; margin-top: 4px;">
+              <span style="color: #ff5c5c; font-size: 14px;">📍</span> <span>Femoral vein, cephalic vein</span>
+            </div>
+
+            <div style="margin-top: 8px; font-weight: 600;">Features:</div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 20px;">
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">👉</span> Thin media</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">👉</span> Prominent adventitia</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">👉</span> Valves present</div>
+            </div>
+
+            <!-- 4. Large Veins -->
+            <div style="font-weight: 800; margin-top: 16px; display: flex; align-items: center; gap: 6px;">
+              <span style="background: #586069; color: white; border-radius: 4px; padding: 2px 8px; font-size: 12px;">4</span> Large Veins
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 20px; margin-top: 4px;">
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="color: #ff5c5c; font-size: 14px;">📍</span> Superior vena cava (SVC)</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="color: #ff5c5c; font-size: 14px;">📍</span> Inferior vena cava (IVC)</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="color: #ff5c5c; font-size: 14px;">📍</span> Portal vein</div>
+            </div>
+
+            <div style="margin-top: 8px; font-weight: 600;">Features:</div>
+            <div style="display: flex; flex-direction: column; gap: 4px; padding-left: 20px;">
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">👉</span> Thick adventitia</div>
+              <div style="display: flex; gap: 8px; align-items: center;"><span style="font-size: 16px;">👉</span> Thin media</div>
+            </div>
+
+          </div>
+        </div>
+
+
+
+
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- 📥 END OF HISTOLOGY CONTENT                                    -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- 📥 END OF HISTOLOGY NOTES                                         -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- 📥 EMBRYOLOGY NOTES — PASTE BELOW THIS LINE                       -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <div id="noteEmbryo" class="paste-zone">
+      <div class="inner">
+        <!-- Welcome -->
+        <div>
+          <div
+            style="
+              font-size: 18px;
+              font-weight: 800;
+              margin-bottom: 16px;
+              display: flex;
+              align-items: center;
+              gap: 8px;
+            "
+          >
+            <span>🥚</span> EMBRYOLOGY
+          </div>
+          <div
+            style="
+              background: #0f6a99;
+              color: white;
+              padding: 10px 14px;
+              border-radius: 8px;
+              font-size: 14px;
+              font-weight: 600;
+              margin-bottom: 18px;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            "
+          >
+            <span>🧬 Welcome to Embryology</span>
+          </div>
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              gap: 12px;
+              font-size: 14.5px;
+              line-height: 1.6;
+            "
+          >
+            <div style="display: flex; gap: 8px; align-items: flex-start">
+              <span style="font-size: 16px">📌</span>
+              <div>
+                Paste your CVS Embryology notes here. Use the same block format
+                as the MSK file: blue section headers, 🔻 bullets, ✔️ summary
+                lines, tables, and callout boxes.
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- 📥 YOUR EMBRYOLOGY CONTENT GOES HERE (BELOW THIS COMMENT)      -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- 📥 END OF EMBRYOLOGY CONTENT                                   -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+      </div>
+    </div>
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- 📥 END OF EMBRYOLOGY NOTES                                        -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- 📥 PHYSIOLOGY NOTES — PASTE BELOW THIS LINE                       -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <div id="notePhysio" class="paste-zone">
+      <div class="inner">
+        <!-- Welcome -->
+        <div>
+          <div
+            style="
+              font-size: 18px;
+              font-weight: 800;
+              margin-bottom: 16px;
+              display: flex;
+              align-items: center;
+              gap: 8px;
+            "
+          >
+            <span>💓</span> PHYSIOLOGY
+          </div>
+          <div
+            style="
+              background: #0f6a99;
+              color: white;
+              padding: 10px 14px;
+              border-radius: 8px;
+              font-size: 14px;
+              font-weight: 600;
+              margin-bottom: 18px;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            "
+          >
+            <span>🩺 Welcome to Physiology</span>
+          </div>
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              gap: 12px;
+              font-size: 14.5px;
+              line-height: 1.6;
+            "
+          >
+            <div style="display: flex; gap: 8px; align-items: flex-start">
+              <span style="font-size: 16px">📌</span>
+              <div>
+                Paste your CVS Physiology notes here. Use the same block format
+                as the MSK file: blue section headers, 🔻 bullets, ✔️ summary
+                lines, tables, and callout boxes.
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- 📥 YOUR PHYSIOLOGY CONTENT GOES HERE (BELOW THIS COMMENT)      -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- 📥 END OF PHYSIOLOGY CONTENT                                   -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+      </div>
+    </div>
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- 📥 END OF PHYSIOLOGY NOTES                                        -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- 📥 PATHOLOGY NOTES — PASTE BELOW THIS LINE                        -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <div id="notePatho" class="paste-zone">
+      <div class="inner">
+        <!-- Welcome -->
+        <div>
+          <div
+            style="
+              font-size: 18px;
+              font-weight: 800;
+              margin-bottom: 16px;
+              display: flex;
+              align-items: center;
+              gap: 8px;
+            "
+          >
+            <span>🧫</span> PATHOLOGY
+          </div>
+          <div
+            style="
+              background: #0f6a99;
+              color: white;
+              padding: 10px 14px;
+              border-radius: 8px;
+              font-size: 14px;
+              font-weight: 600;
+              margin-bottom: 18px;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            "
+          >
+            <span>🩺 Welcome to Pathology</span>
+          </div>
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              gap: 12px;
+              font-size: 14.5px;
+              line-height: 1.6;
+            "
+          >
+            <div style="display: flex; gap: 8px; align-items: flex-start">
+              <span style="font-size: 16px">📌</span>
+              <div>
+                Paste your CVS Pathology notes here. Use the same block format
+                as the MSK file: blue section headers, 🔻 bullets, ✔️ summary
+                lines, tables, and callout boxes.
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- 📥 YOUR PATHOLOGY CONTENT GOES HERE (BELOW THIS COMMENT)       -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- 📥 END OF PATHOLOGY CONTENT                                    -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+      </div>
+    </div>
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- 📥 END OF PATHOLOGY NOTES                                         -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- 📥 PHARMACOLOGY NOTES — PASTE BELOW THIS LINE                     -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <div id="notePharm" class="paste-zone">
+      <div class="inner">
+        <!-- Welcome -->
+        <div>
+          <div
+            style="
+              font-size: 18px;
+              font-weight: 800;
+              margin-bottom: 16px;
+              display: flex;
+              align-items: center;
+              gap: 8px;
+            "
+          >
+            <span>💊</span> PHARMACOLOGY
+          </div>
+          <div
+            style="
+              background: #0f6a99;
+              color: white;
+              padding: 10px 14px;
+              border-radius: 8px;
+              font-size: 14px;
+              font-weight: 600;
+              margin-bottom: 18px;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            "
+          >
+            <span>🩺 Welcome to Pharmacology</span>
+          </div>
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              gap: 12px;
+              font-size: 14.5px;
+              line-height: 1.6;
+            "
+          >
+            <div style="display: flex; gap: 8px; align-items: flex-start">
+              <span style="font-size: 16px">📌</span>
+              <div>
+                Paste your CVS Pharmacology notes here. Use the same block
+                format as the MSK file: blue section headers, 🔻 bullets, ✔️
+                summary lines, tables, and callout boxes.
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- 📥 YOUR PHARMACOLOGY CONTENT GOES HERE (BELOW THIS COMMENT)    -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- 📥 END OF PHARMACOLOGY CONTENT                                 -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+      </div>
+    </div>
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- 📥 END OF PHARMACOLOGY NOTES                                      -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- 📥 BIOCHEMISTRY NOTES — PASTE BELOW THIS LINE                     -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <div id="noteBiochem" class="paste-zone">
+      <div class="inner">
+        <!-- Welcome -->
+        <div>
+          <div
+            style="
+              font-size: 18px;
+              font-weight: 800;
+              margin-bottom: 16px;
+              display: flex;
+              align-items: center;
+              gap: 8px;
+            "
+          >
+            <span>🧪</span> BIOCHEMISTRY
+          </div>
+          <div
+            style="
+              background: #0f6a99;
+              color: white;
+              padding: 10px 14px;
+              border-radius: 8px;
+              font-size: 14px;
+              font-weight: 600;
+              margin-bottom: 18px;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            "
+          >
+            <span>🩺 Welcome to Biochemistry</span>
+          </div>
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              gap: 12px;
+              font-size: 14.5px;
+              line-height: 1.6;
+            "
+          >
+            <div style="display: flex; gap: 8px; align-items: flex-start">
+              <span style="font-size: 16px">📌</span>
+              <div>
+                Paste your CVS Biochemistry notes here. Use the same block
+                format as the MSK file: blue section headers, 🔻 bullets, ✔️
+                summary lines, tables, and callout boxes.
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- 📥 YOUR BIOCHEMISTRY CONTENT GOES HERE (BELOW THIS COMMENT)    -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- 📥 END OF BIOCHEMISTRY CONTENT                                 -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+      </div>
+    </div>
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- 📥 END OF BIOCHEMISTRY NOTES                                      -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- 📥 MICROBIOLOGY NOTES — PASTE BELOW THIS LINE                     -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <div id="noteMicro" class="paste-zone">
+      <div class="inner">
+        <!-- Welcome -->
+        <div>
+          <div
+            style="
+              font-size: 18px;
+              font-weight: 800;
+              margin-bottom: 16px;
+              display: flex;
+              align-items: center;
+              gap: 8px;
+            "
+          >
+            <span>🦠</span> MICROBIOLOGY
+          </div>
+          <div
+            style="
+              background: #0f6a99;
+              color: white;
+              padding: 10px 14px;
+              border-radius: 8px;
+              font-size: 14px;
+              font-weight: 600;
+              margin-bottom: 18px;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            "
+          >
+            <span>🔬 Welcome to Microbiology</span>
+          </div>
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              gap: 12px;
+              font-size: 14.5px;
+              line-height: 1.6;
+            "
+          >
+            <div style="display: flex; gap: 8px; align-items: flex-start">
+              <span style="font-size: 16px">📌</span>
+              <div>
+                Paste your CVS Microbiology notes here. Use the same block
+                format as the MSK file: blue section headers, 🔻 bullets, ✔️
+                summary lines, tables, and callout boxes.
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- 📥 YOUR MICROBIOLOGY CONTENT GOES HERE (BELOW THIS COMMENT)    -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+        <!-- 📥 END OF MICROBIOLOGY CONTENT                                 -->
+        <!-- ═══════════════════════════════════════════════════════════════ -->
+      </div>
+    </div>
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    <!-- 📥 END OF MICROBIOLOGY NOTES                                      -->
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+
+    <script>
+      // =====================================================================
+      // NAVIGATION & UI
+      // =====================================================================
+      function toggleGroup(id) {
+        const g = document.getElementById(id);
+        if (g) g.classList.toggle("open");
+      }
+
+      function showNote(id) {
+        // Hide the main list, hero, and section title
+        document.querySelector(".list").style.display = "none";
+        document.querySelector(".hero").style.display = "none";
+        document.querySelector(".section-title").style.display = "none";
+
+        // Hide every paste zone first
+        document.querySelectorAll(".paste-zone").forEach((z) => {
+          z.style.display = "none";
+        });
+
+        // Show the chosen note
+        const note = document.getElementById(id);
+        if (note) note.style.display = "block";
+
+        // Update Back Button
+        const backBtn = document.querySelector(".topbar .icon-btn");
+
+        if (!window.originalTitle) {
+          window.originalTitle = document.querySelector(".logo-text").innerText;
+          window.originalSubtitle =
+            document.querySelector(".logo-sub").innerText;
+        }
+
+        backBtn.onclick = function (e) {
+          e.preventDefault();
+          document.querySelector(".list").style.display = "flex";
+          document.querySelector(".hero").style.display = "block";
+          document.querySelector(".section-title").style.display = "flex";
+          document.querySelectorAll(".paste-zone").forEach((z) => {
+            z.style.display = "none";
+          });
+
+          document.querySelector(".logo-text").innerText = window.originalTitle;
+          document.querySelector(".logo-sub").innerText =
+            window.originalSubtitle;
+
+          backBtn.onclick = null;
+          backBtn.href = "index.html";
+        };
+
+        // Update topbar title/subtitle
+        const titles = {
+          noteAnatomy: ["Anatomy", "Gross · Histo · Embryo"],
+          noteHisto: ["Histology", "Cells, tissues & microscopic anatomy"],
+          noteEmbryo: ["Embryology", "Heart development basics"],
+          notePhysio: ["Physiology", "Cardiac cycle & hemodynamics"],
+          notePatho: ["Pathology", "CVS disease mechanisms"],
+          notePharm: ["Pharmacology", "CVS drugs & mechanisms"],
+          noteBiochem: ["Biochemistry", "Cardiac markers & lipoproteins"],
+          noteMicro: ["Microbiology", "Endocarditis & myocarditis"],
+        };
+        if (titles[id]) {
+          document.querySelector(".logo-text").innerText = titles[id][0];
+          document.querySelector(".logo-sub").innerText = titles[id][1];
+        }
+
+        // Re-run pin setup (in case the user pasted new content dynamically)
+        setupPins();
+        window.scrollTo(0, 0);
+      }
+
+      // =====================================================================
+      // PINNING SYSTEM
+      // =====================================================================
+      function setupPins() {
+        const sections = [
+          { id: "noteAnatomy", storageKey: "cvs_pinned_anatomy" },
+          { id: "noteHisto", storageKey: "cvs_pinned_histo" },
+          { id: "noteEmbryo", storageKey: "cvs_pinned_embryo" },
+          { id: "notePhysio", storageKey: "cvs_pinned_physio" },
+          { id: "notePatho", storageKey: "cvs_pinned_patho" },
+          { id: "notePharm", storageKey: "cvs_pinned_pharm" },
+          { id: "noteBiochem", storageKey: "cvs_pinned_biochem" },
+          { id: "noteMicro", storageKey: "cvs_pinned_micro" },
+        ];
+
+        sections.forEach(({ id: noteId, storageKey }) => {
+          const noteEl = document.getElementById(noteId);
+          if (!noteEl) return;
+
+          const inner = noteEl.querySelector(".inner");
+          if (!inner) return;
+
+          // 1. Ensure a pinned-nav-box exists at the very top of .inner
+          let pinnedBox = inner.querySelector(".pinned-nav-box");
+          if (!pinnedBox) {
+            pinnedBox = document.createElement("div");
+            pinnedBox.className = "pinned-nav-box";
+            pinnedBox.style.display = "none";
+            inner.prepend(pinnedBox);
+          }
+
+          // 2. Find all blue section headers inside .inner
+          const headers = inner.querySelectorAll(
+            'div[style*="background: #0f6a99"], div[style*="background: linear-gradient"]',
+          );
+
+          let pinnedSections =
+            JSON.parse(localStorage.getItem(storageKey)) || [];
+
+          headers.forEach((header, index) => {
+            // Skip if this header already has a pin button
+            if (header.querySelector(".pin-btn")) return;
+
+            if (!header.id) {
+              header.id = noteId + "-section-" + index;
+            }
+
+            const pinBtn = document.createElement("button");
+            pinBtn.className = "pin-btn";
+            pinBtn.innerHTML = "📌";
+            if (pinnedSections.includes(header.id)) {
+              pinBtn.classList.add("pinned");
+            }
+
+            pinBtn.onclick = (e) => {
+              e.stopPropagation();
+              pinBtn.classList.toggle("pinned");
+              if (pinBtn.classList.contains("pinned")) {
+                if (!pinnedSections.includes(header.id)) {
+                  pinnedSections.push(header.id);
+                }
+              } else {
+                pinnedSections = pinnedSections.filter(
+                  (sid) => sid !== header.id,
+                );
+              }
+              localStorage.setItem(storageKey, JSON.stringify(pinnedSections));
+              updatePinnedUI();
+            };
+
+            // Layout the header so the pin sits at the far right
+            header.style.display = "flex";
+            header.style.justifyContent = "space-between";
+            header.style.alignItems = "center";
+
+            header.appendChild(pinBtn);
+          });
+
+          // 3. Build/refresh the pinned links box
+          function updatePinnedUI() {
+            pinnedBox.innerHTML = "";
+            pinnedSections = JSON.parse(localStorage.getItem(storageKey)) || [];
+
+            if (pinnedSections.length === 0) {
+              pinnedBox.style.display = "none";
+              return;
+            }
+
+            pinnedBox.style.display = "flex";
+
+            const title = document.createElement("div");
+            title.className = "pinned-nav-title";
+            title.innerHTML = "📌 Pinned Sections";
+            pinnedBox.appendChild(title);
+
+            pinnedSections.forEach((sid) => {
+              const el = document.getElementById(sid);
+              if (!el) return;
+              const span = el.querySelector("span");
+              const text = (span ? span.innerText : el.innerText)
+                .replace("↗", "")
+                .trim();
+
+              const link = document.createElement("a");
+              link.href = "#" + sid;
+              link.className = "pinned-link";
+              link.innerHTML = `<span style="color:#f59e0b;">📌</span> ${text}`;
+              link.onclick = (e) => {
+                e.preventDefault();
+                el.scrollIntoView({
+                  behavior: "smooth",
+                  block: "start",
+                  inline: "nearest",
+                });
+              };
+              pinnedBox.appendChild(link);
+            });
+          }
+
+          updatePinnedUI();
+        });
+      }
+
+      // Boot the pinning system on load
+      document.addEventListener("DOMContentLoaded", setupPins);
+    </script>
+  </body>
+</html>

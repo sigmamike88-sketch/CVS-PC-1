@@ -1515,6 +1515,16 @@
         },
       ];
       const TELEGRAM_URL = "https://t.me/+t_UlN4sHt7FkYWQ0";
+      /* ===== SPECIAL NOTES DATA ===== */
+      const SPECIAL_NOTES_DATA = [
+        {
+          id: "sp1",
+          title: "Special Notes",
+          desc: "Key facts & mnemonics",
+          icon: "📝",
+          file: "cvsspecialnotes.html"
+        },
+      ];
 
       /* =====================================================================
                  QUIZ DATA — CVS EXAMS
@@ -11801,7 +11811,35 @@
                 `
                   : "";
               })()}
-
+${
+  SPECIAL_NOTES_DATA.length > 0
+    ? `
+  <div class="section-title">
+    SPECIAL
+    <span class="count">${SPECIAL_NOTES_DATA.length}</span>
+  </div>
+  <div class="list" style="margin-bottom:24px;">
+    ${SPECIAL_NOTES_DATA.map(
+      (n) => `
+      <a href="${escapeHtml(n.file)}" 
+         class="course-card"
+         style="--course-color:#f5b800;--course-color-2:#ff6d00;
+                --course-bg:rgba(245,184,0,0.12);
+                --course-border:rgba(245,184,0,0.3);
+                text-decoration:none;color:inherit;">
+        <div class="course-thumb" style="background:rgba(245,184,0,0.12);border-color:rgba(245,184,0,0.3);">${n.icon}</div>
+        <div class="course-body">
+          <div class="course-title">${escapeHtml(n.title)}</div>
+          <div class="course-meta">${escapeHtml(n.desc)}</div>
+        </div>
+        <svg class="course-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 18l6-6-6-6"/></svg>
+      </a>
+    `,
+    ).join("")}
+  </div>
+`
+    : ""
+}
                   <div class="section-title">
                     STUDY MATERIALS
                     <span class="count">${(NOTES_DATA.length > 0 ? 1 : 0) + (PPTS_DATA.length > 0 ? 1 : 0)}</span>
